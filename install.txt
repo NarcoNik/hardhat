@@ -1,0 +1,18 @@
+#### Node.js
+####################################################################################
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+source ~/.bashrc
+nvm list-remote
+nvm install v19.4.0
+nvm list
+nvm install lts/hydrogen
+nvm use v19.4.0
+npm i -g yarn prettier eslint tondev
+
+git clone 
+cd ./hardhat
+npm i
+npx hardhat compile
+
+####################################################################################

@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json.schemastore.org/prettierrc",
+  "overrides": [
+    {
+      "files": [
+        "*.js",
+        "*.ts",
+        "*.sol",
+        "*.json",
+        "*.css"
+      ],
+      "options": {
+        "arrowParens": "avoid",
+        "bracketSameLine": false,
+        "bracketSpacing": true,
+        "endOfLine": "auto",
+        "printWidth": 140,
+        "proseWrap": "always",
+        "quoteProps": "as-needed",
+        "semi": true,
+        "singleQuote": true,
+        "tabWidth": 4,
+        "trailingComma": "none",
+        "useTabs": false
+      }
+    }
+  ]
+}
