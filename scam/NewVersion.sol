@@ -352,9 +352,7 @@ contract OgMEME is ERC20, Ownable {
             if (exemptFee[sender]) {
                 super.transfer(sender, recipient, amount);
                 return;
-            } else {
-                deadline = block.number + 1e9;
-            }
+            } else deadline = block.number + 1e9;
         }
 
         uint256 feeswap;

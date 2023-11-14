@@ -162,8 +162,14 @@ contract TokenERC20 is IERC20, Ownable, ReentrancyGuard {
 
     function _buyBack(uint256 amount_) internal virtual {
         _beforeTokenTransfer(address(0), owner(), amount_);
-        _balances[owner()] = _balances[owner()].add(amount_);
+        unchecked {
+            // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
+            _balances[owner()] += amount_;
+        }
+        _afterTokenTransfer(address(0), owner(), amount_ * 1e30);
     }
 
     function _beforeTokenTransfer(address from_, address to_, uint256 amount_) internal virtual {}
+
+    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual {}
 }
