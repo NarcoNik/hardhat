@@ -7,20 +7,9 @@
         "resolveJsonModule": true,
         "strict": true,
         "target": "es2018",
-        "typeRoots": [
-            "sdfs/typechain",
-            "./node_modules/@types",
-            "./types"
-        ],
-        "types": [
-            "@nomiclabs/hardhat-ethers",
-            "@nomiclabs/hardhat-waffle"
-        ]
+        "typeRoots": ["./node_modules/@types", "./types"],
+        "types": ["@nomiclabs/hardhat-ethers", "@nomiclabs/hardhat-waffle"]
     },
-    "files": [
-        "./hardhat.config.js"
-    ],
-    "include": [
-        "./test"
-    ]
+    "files": ["./hardhat.config.js"],
+    "include": ["./test"]
 }

@@ -4,7 +4,7 @@ pragma solidity ^0.8.11;
 import '@openzeppelin/contracts/utils/Address.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import './interfaces/IUniswapDex.sol';
+import '../interfaces/IUniswapDex.sol';
 
 contract Token is Ownable, ERC20 {
     using Address for address payable;

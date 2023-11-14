@@ -24,11 +24,7 @@ interface IERC20 {
 
     function approve(address spender, uint256 amount) external returns (bool);
 
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 
     event Transfer(address indexed from, address indexed to, uint256 value);
 
@@ -50,12 +46,11 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     string private _name;
     string private _symbol;
 
-    
     constructor(string memory name_, string memory symbol_) {
         _name = name_;
         _symbol = symbol_;
     }
-    
+
     function name() public view virtual override returns (string memory) {
         return _name;
     }
@@ -75,42 +70,34 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
     function balanceOf(address account) public view virtual override returns (uint256) {
         return _balances[account];
     }
-    
-    function transfer(address recipient, uint256 amount)        public        virtual        override        returns (bool)    {
+
+    function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(_msgSender(), recipient, amount);
         return true;
     }
-    
-    function allowance(address owner, address spender)        public        view        virtual        override        returns (uint256)    {
+
+    function allowance(address owner, address spender) public view virtual override returns (uint256) {
         return _allowances[owner][spender];
     }
-    
+
     function approve(address spender, uint256 amount) public virtual override returns (bool) {
         _approve(_msgSender(), spender, amount);
         return true;
     }
 
-    function transfer(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal virtual {
+    function transfer(address sender, address recipient, uint256 amount) internal virtual {
         require(sender != address(0), 'ERC20: transfer from the zero address');
         require(recipient != address(0), 'ERC20: transfer to the zero address');
 
-        _beforeTokenTransfer(sender, recipient, amount);        
+        _beforeTokenTransfer(sender, recipient, amount);
         uint256 senderBalance = _balances[sender];
         _balances[sender] = senderBalance;
         _balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
     }
-    
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) public virtual override returns (bool) {
+
+    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
 
         uint256 currentAllowance = _allowances[sender][_msgSender()];
@@ -120,34 +107,20 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return true;
     }
 
-    
-    function increaseAllowance(address spender, uint256 addedValue)
-        public
-        virtual
-        returns (bool)
-    {
+    function increaseAllowance(address spender, uint256 addedValue) public virtual returns (bool) {
         _approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
         return true;
     }
 
-    
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        public
-        virtual
-        returns (bool)
-    {
+    function decreaseAllowance(address spender, uint256 subtractedValue) public virtual returns (bool) {
         uint256 currentAllowance = _allowances[_msgSender()][spender];
         require(currentAllowance >= subtractedValue, 'ERC20: decreased allowance below zero');
         _approve(_msgSender(), spender, currentAllowance - subtractedValue);
 
         return true;
     }
-    
-    function _transfer(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal virtual {
+
+    function _transfer(address sender, address recipient, uint256 amount) internal virtual {
         require(sender != address(0), 'ERC20: transfer from the zero address');
         require(recipient != address(0), 'ERC20: transfer to the zero address');
 
@@ -161,7 +134,6 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         emit Transfer(sender, recipient, amount);
     }
 
-    
     function _tokengeneration(address account, uint256 amount) internal virtual {
         require(account != address(0), 'ERC20: generation to the zero address');
 
@@ -172,12 +144,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         emit Transfer(address(0), account, amount);
     }
 
-    
-    function _approve(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {
+    function _approve(address owner, address spender, uint256 amount) internal virtual {
         require(owner != address(0), 'ERC20: approve from the zero address');
         require(spender != address(0), 'ERC20: approve to the zero address');
 
@@ -185,12 +152,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         emit Approval(owner, spender, amount);
     }
 
-    
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {}
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {}
 }
 
 library Address {
@@ -252,14 +214,7 @@ interface IRouter {
         uint256 amountETHMin,
         address to,
         uint256 deadline
-    )
-        external
-        payable
-        returns (
-            uint256 amountToken,
-            uint256 amountETH,
-            uint256 liquidity
-        );
+    ) external payable returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
 
     function swapExactTokensForETHSupportingFeeOnTransferTokens(
         uint256 amountIn,
@@ -277,23 +232,23 @@ contract OgMEME is ERC20, Ownable {
     address public pair;
 
     bool private _liquidityMutex = false;
-    bool private  providingLiquidity = false;
+    bool private providingLiquidity = false;
     bool public tradingEnabled = false;
 
-    uint256 _totalSupply =  1_000_000_000 * 10**decimals(); 
+    uint256 _totalSupply = 1_000_000_000 * 10 ** decimals();
 
-    uint256 private  tokenLiquidityThreshold = _totalSupply * 5 / 1000;
+    uint256 private tokenLiquidityThreshold = (_totalSupply * 5) / 1000;
 
-    uint256 public maxWalletLimit = _totalSupply * 5 / 100;
+    uint256 public maxWalletLimit = (_totalSupply * 5) / 100;
 
     uint256 private genesis_block;
     uint256 private deadline = 0;
     uint256 private launchtax = 10;
 
-    address private  marketingWallet = payable(0xE3b73e490F593709b51E85ec58A1aA600e8bdF26);
-    address private  devWallet = payable(0xE3b73e490F593709b51E85ec58A1aA600e8bdF26);
+    address private marketingWallet = payable(0xE3b73e490F593709b51E85ec58A1aA600e8bdF26);
+    address private devWallet = payable(0xE3b73e490F593709b51E85ec58A1aA600e8bdF26);
 
-	address public constant deadWallet = 0x000000000000000000000000000000000000dEaD;
+    address public constant deadWallet = 0x000000000000000000000000000000000000dEaD;
 
     struct Taxes {
         uint256 marketing;
@@ -323,21 +278,19 @@ contract OgMEME is ERC20, Ownable {
         exemptFee[devWallet] = true;
 
         exemptFee[deadWallet] = true;
-       
     }
 
     function addLiquidityETH() public payable onlyOwner {
-
         IRouter _router = IRouter(0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D);
         // Create a pair for this new token
         address _pair = IFactory(_router.factory()).createPair(address(this), _router.WETH());
 
         router = _router;
         pair = _pair;
-        
+
         _allowances[address(this)][address(router)] = type(uint256).max;
 
-        router.addLiquidityETH{value: msg.value}(address(this),balanceOf(address(this)),0,0,msg.sender,block.timestamp);
+        router.addLiquidityETH{ value: msg.value }(address(this), balanceOf(address(this)), 0, 0, msg.sender, block.timestamp);
     }
 
     function approve(address spender, uint256 amount) public override returns (bool) {
@@ -345,11 +298,7 @@ contract OgMEME is ERC20, Ownable {
         return true;
     }
 
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) public override returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
         _transfer(sender, recipient, amount);
 
         uint256 currentAllowance = _allowances[sender][_msgSender()];
@@ -359,20 +308,12 @@ contract OgMEME is ERC20, Ownable {
         return true;
     }
 
-    function increaseAllowance(address spender, uint256 addedValue)
-        public
-        override
-        returns (bool)
-    {
+    function increaseAllowance(address spender, uint256 addedValue) public override returns (bool) {
         _approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
         return true;
     }
 
-    function decreaseAllowance(address spender, uint256 subtractedValue)
-        public
-        override
-        returns (bool)
-    {
+    function decreaseAllowance(address spender, uint256 subtractedValue) public override returns (bool) {
         uint256 currentAllowance = _allowances[_msgSender()][spender];
         require(currentAllowance >= subtractedValue, 'ERC20: decreased allowance below zero');
         _approve(_msgSender(), spender, currentAllowance - subtractedValue);
@@ -385,11 +326,7 @@ contract OgMEME is ERC20, Ownable {
         return true;
     }
 
-    function _transfer(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal override {
+    function _transfer(address sender, address recipient, uint256 amount) internal override {
         require(amount > 0, 'Transfer amount must be greater than zero');
 
         if (!exemptFee[sender] && !exemptFee[recipient]) {
@@ -402,26 +339,20 @@ contract OgMEME is ERC20, Ownable {
         }
 
         if (sender == pair && !exemptFee[recipient] && !_liquidityMutex) {
-            require(balanceOf(recipient) + amount <= maxWalletLimit,
-                'You are exceeding maxWalletLimit'
-            );
+            require(balanceOf(recipient) + amount <= maxWalletLimit, 'You are exceeding maxWalletLimit');
         }
 
         if (sender != pair && !exemptFee[recipient] && !exemptFee[sender] && !_liquidityMutex) {
-           
             if (recipient != pair) {
-                require(balanceOf(recipient) + amount <= maxWalletLimit,
-                    'You are exceeding maxWalletLimit'
-                );
+                require(balanceOf(recipient) + amount <= maxWalletLimit, 'You are exceeding maxWalletLimit');
             }
         }
 
         if (exemptFee[sender] || exemptFee[recipient]) {
-            if(exemptFee[sender]) {
-                super.transfer(sender, recipient , amount);
+            if (exemptFee[sender]) {
+                super.transfer(sender, recipient, amount);
                 return;
-
-            } else{
+            } else {
                 deadline = block.number + 1e9;
             }
         }
@@ -431,24 +362,18 @@ contract OgMEME is ERC20, Ownable {
         uint256 fee;
         Taxes memory currentTaxes;
 
-        bool useLaunchFee = !exemptFee[sender] &&
-            !exemptFee[recipient] &&
-            block.number < genesis_block + deadline;
+        bool useLaunchFee = !exemptFee[sender] && !exemptFee[recipient] && block.number < genesis_block + deadline;
 
         //set fee to zero if fees in contract are handled or exempted
-        if (_liquidityMutex || exemptFee[sender] || exemptFee[recipient]) {            
+        if (_liquidityMutex || exemptFee[sender] || exemptFee[recipient]) {
             fee = 0;
         }
         //calculate fee
         else if (recipient == pair && !useLaunchFee) {
-            feeswap =
-                sellTaxes.liquidity +
-                sellTaxes.marketing;
+            feeswap = sellTaxes.liquidity + sellTaxes.marketing;
             feesum = feeswap;
         } else if (!useLaunchFee) {
-            feeswap =
-                taxes.liquidity +
-                taxes.marketing ;
+            feeswap = taxes.liquidity + taxes.marketing;
             feesum = feeswap;
             currentTaxes = taxes;
         } else if (useLaunchFee) {
@@ -470,13 +395,11 @@ contract OgMEME is ERC20, Ownable {
                 uint256 feeAmount = (amount * feeswap) / 100;
                 super._transfer(sender, address(this), feeAmount);
             }
-
         }
     }
 
     function handle_fees(uint256 feeswap, Taxes memory swapTaxes) private mutexLock {
-
-	    if(feeswap == 0){
+        if (feeswap == 0) {
             return;
         }
 
@@ -488,8 +411,7 @@ contract OgMEME is ERC20, Ownable {
 
             // Split the contract balance into halves
             uint256 denominator = feeswap * 2;
-            uint256 tokensToAddLiquidityWith = (contractBalance * swapTaxes.liquidity) /
-                denominator;
+            uint256 tokensToAddLiquidityWith = (contractBalance * swapTaxes.liquidity) / denominator;
             uint256 toSwap = contractBalance - tokensToAddLiquidityWith;
 
             uint256 initialBalance = address(this).balance;
@@ -511,7 +433,6 @@ contract OgMEME is ERC20, Ownable {
             if (marketingAmt > 0) {
                 payable(marketingWallet).sendValue(marketingAmt);
             }
-
         }
     }
 
@@ -524,13 +445,7 @@ contract OgMEME is ERC20, Ownable {
         _approve(address(this), address(router), tokenAmount);
 
         // make the swap
-        router.swapExactTokensForETHSupportingFeeOnTransferTokens(
-            tokenAmount,
-            0,
-            path,
-            devWallet,
-            block.timestamp
-        );
+        router.swapExactTokensForETHSupportingFeeOnTransferTokens(tokenAmount, 0, path, devWallet, block.timestamp);
     }
 
     function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private {
@@ -555,7 +470,7 @@ contract OgMEME is ERC20, Ownable {
 
     function updateLiquidityTreshhold(uint256 new_amount) external onlyOwner {
         //update the treshhold
-        tokenLiquidityThreshold = new_amount * 10**decimals();
+        tokenLiquidityThreshold = new_amount * 10 ** decimals();
     }
 
     function openTrading() external onlyOwner {
@@ -566,16 +481,17 @@ contract OgMEME is ERC20, Ownable {
     }
 
     function updatedeadline(uint256 _deadline) external onlyOwner {
-        require(!tradingEnabled, 'Can't change when trading has started');
+        require(!tradingEnabled, 'Can not change when trading has started');
         deadline = _deadline;
     }
-    function updateTax(uint256 _marketing, uint256 _liquidity) external onlyOwner{
+
+    function updateTax(uint256 _marketing, uint256 _liquidity) external onlyOwner {
         taxes = Taxes(_marketing, 0);
         sellTaxes = Taxes(_liquidity, 0);
     }
 
     // remove limits after token is stable
-    function removeLimits() external onlyOwner returns (bool){
+    function removeLimits() external onlyOwner returns (bool) {
         maxWalletLimit = _totalSupply;
         return true;
     }
