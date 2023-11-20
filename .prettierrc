@@ -2,7 +2,15 @@
   "$schema": "http://json.schemastore.org/prettierrc",
   "overrides": [
     {
-      "files": ["*.js", "*.jsx", "*.ts", "*.tsx", "*.sol", "*.json", "*.css"],
+      "files": [
+        "*.js",
+        "*.jsx",
+        "*.ts",
+        "*.tsx",
+        "*.sol",
+        "*.json",
+        "*.css"
+      ],
       "options": {
         "arrowParens": "avoid",
         "bracketSameLine": false,
