@@ -1,15 +1,28 @@
 {
+  "parser": "@typescript-eslint/parser",
   "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
     "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "lib": ["es6", "esnext"],
     "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": false,
     "outDir": "dist",
+    "removeComments": true,
     "resolveJsonModule": true,
+    "skipLibCheck": true,
     "strict": true,
-    "target": "es2018",
+    "target": "es6",
     "typeRoots": ["./node_modules/@types", "./types"],
     "types": ["@nomiclabs/hardhat-ethers", "@nomiclabs/hardhat-waffle"]
   },
   "files": ["./hardhat.config.js"],
-  "include": ["./test"]
+  "include": ["./hardhat.config.ts", "./scripts", "tests", "tasks", "./deploy", "./test.config.d.ts", "./build/typechain", "./typechain"]
+  //   "include": ["./test"]
 }

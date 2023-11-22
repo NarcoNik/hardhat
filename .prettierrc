@@ -2,15 +2,39 @@
   "$schema": "http://json.schemastore.org/prettierrc",
   "overrides": [
     {
-      "files": [
-        "*.js",
-        "*.jsx",
-        "*.ts",
-        "*.tsx",
-        "*.sol",
-        "*.json",
-        "*.css"
-      ],
+      "files": ["*.sol"],
+      "options": {
+        "arrowParens": "avoid",
+        "bracketSpacing": false,
+        "embeddedLanguageFormatting": "auto",
+        "endOfLine": "auto",
+        "printWidth": 160,
+        "proseWrap": "always",
+        "singleQuote": false,
+        "tabWidth": 4,
+        "useTabs": false
+      }
+    },
+    {
+      "files": ["*.js", "*.ts", "*.json"],
+      "options": {
+        "arrowParens": "avoid",
+        "bracketSameLine": false,
+        "bracketSpacing": true,
+        "embeddedLanguageFormatting": "auto",
+        "endOfLine": "auto",
+        "printWidth": 150,
+        "proseWrap": "always",
+        "quoteProps": "as-needed",
+        "semi": true,
+        "singleQuote": true,
+        "tabWidth": 2,
+        "trailingComma": "none",
+        "useTabs": false
+      }
+    },
+    {
+      "files": ["*.jsx", "*.tsx"],
       "options": {
         "arrowParens": "avoid",
         "bracketSameLine": false,
@@ -18,7 +42,7 @@
         "embeddedLanguageFormatting": "auto",
         "endOfLine": "auto",
         "jsxSingleQuote": true,
-        "printWidth": 140,
+        "printWidth": 150,
         "proseWrap": "always",
         "quoteProps": "as-needed",
         "semi": true,

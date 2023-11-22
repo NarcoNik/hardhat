@@ -4,22 +4,10 @@
   "rules": {
     "avoid-low-level-calls": "off",
     "avoid-tx-origin": "off",
-    "compiler-version": [
-      "error",
-      "^0.8.0",
-      "^0.8.10",
-      "^0.8.11",
-      "^0.8.12",
-      "^0.8.13",
-      "^0.8.14",
-      "^0.8.15",
-      "^0.8.16",
-      "^0.8.17",
-      "^0.8.19",
-      "^0.8.22"
-    ],
+    "compiler-version": ["error", "^0.8.0"],
     "const-name-snakecase": "off",
     "contract-name-camelcase": "off",
+    "custom-errors": "off",
     "explicit-types": "off",
     "func-name-mixedcase": "off",
     "func-visibility": [

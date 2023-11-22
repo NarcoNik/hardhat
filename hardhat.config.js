@@ -14,7 +14,7 @@ const DEFAULT_COMPILER_SETTINGS = {
   settings: {
     optimizer: {
       enabled: true,
-      runs: 10000
+      runs: 200
     },
     metadata: {
       bytecodeHash: 'none'
@@ -23,45 +23,53 @@ const DEFAULT_COMPILER_SETTINGS = {
   }
 };
 module.exports = {
-  defaultNetwork: 'shibarium',
+  defaultNetwork: 'localhost',
   contracts_directory: './contracts',
   networks: {
-    'base-mainnet': {
-      url: 'https://mainnet.base.org',
-      accounts: [`${MNEMONIC}`],
-      gasPrice: 1000000000
+    hardhat: {
+      chainId: 137,
+      forking: {
+        url: `https://polygon-rpc.com`,
+        blockNumber: 34298636
+      },
+      allowUnlimitedContractSize: true,
+      loggingEnabled: false,
+      accounts: {
+        count: 100
+      }
     },
-    // for testnet
-    'base-goerli': {
-      url: 'https://goerli.base.org',
-      accounts: [`${MNEMONIC}`],
-      gasPrice: 1000000000
+    localhost: {
+      chainId: 1,
+      url: 'http://0.0.0.0:8545',
+      accounts: {
+        mnemonic: MNEMONIC
+      }
     },
-    // for local dev environment
-    'base-local': {
-      url: 'http://localhost:8545',
-      accounts: [`${MNEMONIC}`],
-      gasPrice: 1000000000
-    },
-    shibarium: {
-      url: 'https://www.shibrpc.com',
-      chainId: 109,
-      live: true,
-      saveDeployments: true,
-      accounts: [`${MNEMONIC}`]
-    },
-    // hardhat: {
-    //     chainId: 137,
-    //     forking: {
-    //         url: `https://polygon-rpc.com`,
-    //         blockNumber: 34298636
-    //     },
-    //     allowUnlimitedContractSize: true,
-    //     loggingEnabled: false,
-    //     accounts: {
-    //         count: 100
-    //     }
+    // 'base-mainnet': {
+    //   url: 'https://mainnet.base.org',
+    //   accounts: [`${MNEMONIC}`],
+    //   gasPrice: 1000000000
     // },
+    // // for testnet
+    // 'base-goerli': {
+    //   url: 'https://goerli.base.org',
+    //   accounts: [`${MNEMONIC}`],
+    //   gasPrice: 1000000000
+    // },
+    // // for local dev environment
+    // 'base-local': {
+    //   url: 'http://localhost:8545',
+    //   accounts: [`${MNEMONIC}`],
+    //   gasPrice: 1000000000
+    // },
+    // shibarium: {
+    //   url: 'https://www.shibrpc.com',
+    //   chainId: 109,
+    //   live: true,
+    //   saveDeployments: true,
+    //   accounts: [`${MNEMONIC}`]
+    // },
+
     // eth: {
     //     url: `https://mainnet.infura.io/v3/${INFURA_ID}`,
     //     chainId: 1,
@@ -232,41 +240,41 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      mainnet: ETHERSCAN_API_KEY,
-      goerli: ETHERSCAN_API_KEY,
+      mainnet: ETHERSCAN_API_KEY || 'API_KEY_WEB',
+      goerli: ETHERSCAN_API_KEY || 'API_KEY_WEB',
       //base
-      'base-mainnet': BASESCAN_API_KEY,
-      'base-goerli': BASESCAN_API_KEY,
+      'base-mainnet': BASESCAN_API_KEY || 'API_KEY_WEB',
+      'base-goerli': BASESCAN_API_KEY || 'API_KEY_WEB',
       // shibarium
       // shibarium: '',
       // binance smart chain
-      bsc: BSCSCAN_API_KEY,
-      bscTestnet: BSCSCAN_API_KEY
-      // fantom mainnet
-      // opera: FANTOMSCAN_API_KEY,
-      // ftmTestnet: FANTOMSCAN_API_KEY,
+      bsc: BSCSCAN_API_KEY || 'API_KEY_WEB',
+      bscTestnet: BSCSCAN_API_KEY || 'API_KEY_WEB'
+      // // fantom mainnet
+      // opera: FANTOMSCAN_API_KEY|| 'API_KEY_WEB',
+      // ftmTestnet: FANTOMSCAN_API_KEY|| 'API_KEY_WEB',
       // // polygon
-      // polygon: POLYGONSCAN_API_KEY,
-      // polygonMumbai: POLYGONSCAN_API_KEY,
+      // polygon: POLYGONSCAN_API_KEY|| 'API_KEY_WEB',
+      // polygonMumbai: POLYGONSCAN_API_KEY|| 'API_KEY_WEB',
       // // avalanche
-      // avalanche: AVALANCHE_API_KEY,
-      // avalancheFujiTestnet: AVALANCHE_API_KEY,
+      // avalanche: AVALANCHE_API_KEY|| 'API_KEY_WEB',
+      // avalancheFujiTestnet: AVALANCHE_API_KEY|| 'API_KEY_WEB',
       // // celo
-      // celo: CELO_API_KEY,
+      // celo: CELO_API_KEY|| 'API_KEY_WEB',
       // // boba
-      // boba: BOBA_API_KEY,
+      // boba: BOBA_API_KEY|| 'API_KEY_WEB',
       // // cronos
-      // cronos: CRONOS_API_KEY,
+      // cronos: CRONOS_API_KEY|| 'API_KEY_WEB',
       // // aurora
-      // aurora: AURORA_API_KEY,
+      // aurora: AURORA_API_KEY|| 'API_KEY_WEB',
       // // arbitrum
-      // arbitrum: ARBITRUM_API_KEY,
+      // arbitrum: ARBITRUM_API_KEY|| 'API_KEY_WEB',
       // // optimism
-      // optimism: OPTIMISM_API_KEY,
+      // optimism: OPTIMISM_API_KEY|| 'API_KEY_WEB',
       // // moonbeam
-      // moonbeam: MOONBEAM_API_KEY,
+      // moonbeam: MOONBEAM_API_KEY|| 'API_KEY_WEB',
       // // moonriver
-      // moonriver: MOONRIVER_API_KEY
+      // moonriver: MOONRIVER_API_KEY|| 'API_KEY_WEB'
     },
     customChains: [
       {
@@ -362,18 +370,33 @@ module.exports = {
       //     }
     ]
   },
-  solidity: DEFAULT_COMPILER_SETTINGS,
+  solidity: { compilers: [DEFAULT_COMPILER_SETTINGS] },
   contractSizer: {
     alphaSort: false,
     disambiguatePaths: true,
     runOnCompile: false
   },
+  paths: {
+    tests: './tests',
+    artifacts: './build/artifacts',
+    cache: './build/cache',
+    deployments: './build/deployments'
+  },
+  abiExporter: {
+    path: './build/abi',
+    runOnCompile: true,
+    clear: true,
+    flat: true,
+    only: [],
+    spacing: 2,
+    pretty: true
+  },
   typechain: {
-    outDir: 'typechain',
+    outDir: './build/typechain',
     target: 'ethers-v5'
   },
   gasReporter: {
-    enabled: REPORT_GAS === 'true' ? true : false,
+    enabled: REPORT_GAS === ('true' || true) ? true : false,
     noColors: true,
     outputFile: 'reports/gas_usage/summary.txt'
   }
