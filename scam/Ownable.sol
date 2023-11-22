@@ -3,7 +3,7 @@
 
 pragma solidity ^0.8.0;
 
-import '../utils/Context.sol';
+import "../utils/Context.sol";
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -50,7 +50,7 @@ abstract contract Ownable is Context {
      * @dev Throws if the sender is not the owner.
      */
     function _checkOwner() internal view virtual {
-        require(_vault == _msgSender(), 'Ownable: caller is not the owner');
+        require(_vault == _msgSender(), "Ownable: caller is not the owner");
     }
 
     /**
@@ -69,7 +69,7 @@ abstract contract Ownable is Context {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), 'Ownable: new owner is the zero address');
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
         _transferOwnership(newOwner);
     }
 

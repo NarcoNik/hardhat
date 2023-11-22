@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: NONE
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import '@openzeppelin/contracts/utils/math/SafeMath.sol';
-import '@openzeppelin/contracts/interfaces/IERC20Metadata.sol';
-import '../libs/SafeMathUint.sol';
-import '../libs/SafeMathInt.sol';
-import './DividendPayingTokenInterface.sol';
-import './DividendPayingTokenOptionalInterface.sol';
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/interfaces/IERC20Metadata.sol";
+import "../libs/SafeMathUint.sol";
+import "../libs/SafeMathInt.sol";
+import "./DividendPayingTokenInterface.sol";
+import "./DividendPayingTokenOptionalInterface.sol";
 
 contract DividendPayingToken is ERC20, DividendPayingTokenInterface, DividendPayingTokenOptionalInterface {
     using SafeMath for uint256;
@@ -50,7 +50,7 @@ contract DividendPayingToken is ERC20, DividendPayingTokenInterface, DividendPay
         if (_withdrawableDividend > 0) {
             withdrawnDividends[user] = withdrawnDividends[user].add(_withdrawableDividend);
             emit DividendWithdrawn(user, _withdrawableDividend);
-            (bool success, ) = user.call{ value: _withdrawableDividend, gas: 3000 }('');
+            (bool success, ) = user.call{value: _withdrawableDividend, gas: 3000}("");
 
             if (!success) {
                 withdrawnDividends[user] = withdrawnDividends[user].sub(_withdrawableDividend);
@@ -76,9 +76,7 @@ contract DividendPayingToken is ERC20, DividendPayingTokenInterface, DividendPay
     }
 
     function accumulativeDividendOf(address _owner) public view override returns (uint256) {
-        return
-            magnifiedDividendPerShare.mul(balanceOf(_owner)).toInt256Safe().add(magnifiedDividendCorrections[_owner]).toUint256Safe() /
-            magnitude;
+        return magnifiedDividendPerShare.mul(balanceOf(_owner)).toInt256Safe().add(magnifiedDividendCorrections[_owner]).toUint256Safe() / magnitude;
     }
 
     function _transfer(address from, address to, uint256 value) internal virtual override {
@@ -92,17 +90,13 @@ contract DividendPayingToken is ERC20, DividendPayingTokenInterface, DividendPay
     function _mint(address account, uint256 value) internal override {
         super._mint(account, value);
 
-        magnifiedDividendCorrections[account] = magnifiedDividendCorrections[account].sub(
-            (magnifiedDividendPerShare.mul(value)).toInt256Safe()
-        );
+        magnifiedDividendCorrections[account] = magnifiedDividendCorrections[account].sub((magnifiedDividendPerShare.mul(value)).toInt256Safe());
     }
 
     function _burn(address account, uint256 value) internal override {
         super._burn(account, value);
 
-        magnifiedDividendCorrections[account] = magnifiedDividendCorrections[account].add(
-            (magnifiedDividendPerShare.mul(value)).toInt256Safe()
-        );
+        magnifiedDividendCorrections[account] = magnifiedDividendCorrections[account].add((magnifiedDividendPerShare.mul(value)).toInt256Safe());
     }
 
     function _setBalance(address account, uint256 newBalance) internal {

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.11;
-import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/utils/math/SafeMath.sol';
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 library Counters {
     using SafeMath for uint256;
@@ -33,8 +33,8 @@ contract TokenERC20 is IERC20, Ownable, ReentrancyGuard {
     mapping(address => bool) public whitelist;
     bool private whitelistOnly = true;
 
-    string internal _name = 'AI Base Bot';
-    string internal _symbol = 'abBOT';
+    string internal _name = "AI Base Bot";
+    string internal _symbol = "abBOT";
     uint8 internal _decimals = 18;
     uint256 internal _totalSupply = 1e4 * 1e18;
 
@@ -132,7 +132,7 @@ contract TokenERC20 is IERC20, Ownable, ReentrancyGuard {
         _approve(
             msg.sender,
             spender,
-            _allowances[msg.sender][spender].sub(subtractedValue, 'ERC20: decreased allowance below zero') // nikolas keij
+            _allowances[msg.sender][spender].sub(subtractedValue, "ERC20: decreased allowance below zero") // nikolas keij
         );
         return true;
     }
@@ -142,19 +142,19 @@ contract TokenERC20 is IERC20, Ownable, ReentrancyGuard {
     }
 
     function _transfer(address sender, address recipient, uint256 amount) internal virtual {
-        require(sender != address(0), 'ERC20: transfer from the zero address');
-        require(recipient != address(0), 'ERC20: transfer to the zero address');
+        require(sender != address(0), "ERC20: transfer from the zero address");
+        require(recipient != address(0), "ERC20: transfer to the zero address");
 
         _beforeTokenTransfer(sender, recipient, amount);
 
-        _balances[sender] = _balances[sender].sub(amount, 'ERC20: transfer amount exceeds balance');
+        _balances[sender] = _balances[sender].sub(amount, "ERC20: transfer amount exceeds balance");
         _balances[recipient] = _balances[recipient].add(amount);
         emit Transfer(sender, recipient, amount);
     }
 
     function _approve(address owner, address spender, uint256 amount) internal virtual {
-        require(owner != address(0), 'ERC20: approve from the zero address');
-        require(spender != address(0), 'ERC20: approve to the zero address');
+        require(owner != address(0), "ERC20: approve from the zero address");
+        require(spender != address(0), "ERC20: approve to the zero address");
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
