@@ -56,7 +56,7 @@
   "name": "hardhat",
   "scripts": {
     "alpha": "node scripts/alpha.js",
-    "dep": "node scripts/dep.js",
+    "dep": "npx hardhat run scripts/dep.js",
     "format": "npx prettier --write ./ && eslint --fix ./",
     "lint": "npx solhint contracts/* contracts/**/* && eslint test/** ",
     "local-node": "docker compose --file ./docker-compose.yaml up -d",
