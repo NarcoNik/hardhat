@@ -1,3 +1,6 @@
+require('hardhat-deploy');
+require('hardhat-abi-exporter');
+require('solidity-coverage');
 require('@typechain/hardhat');
 require('@nomiclabs/hardhat-ethers');
 require('@nomiclabs/hardhat-waffle');
@@ -29,7 +32,7 @@ module.exports = {
     hardhat: {
       chainId: 137,
       forking: {
-        url: `https://polygon-rpc.com`,
+        url: 'https://polygon-rpc.com',
         blockNumber: 34298636
       },
       allowUnlimitedContractSize: true,
@@ -84,12 +87,12 @@ module.exports = {
     //     accounts: [`${MNEMONIC}`]
     // },
     bscTest: {
-      url: `https://data-seed-prebsc-2-s2.binance.org:8545`,
+      url: 'https://data-seed-prebsc-2-s2.binance.org:8545',
       chainId: 97,
       accounts: [`${MNEMONIC}`]
     },
     bsc: {
-      url: `https://api.ankr.com/bsc`,
+      url: 'https://api.ankr.com/bsc',
       // url: `https://bsc-dataseed.binance.org/`,
       chainId: 56,
       live: true,

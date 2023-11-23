@@ -1,5 +1,4 @@
 {
-  "parser": "@typescript-eslint/parser",
   "compilerOptions": {
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
@@ -23,6 +22,6 @@
     "types": ["@nomiclabs/hardhat-ethers", "@nomiclabs/hardhat-waffle"]
   },
   "files": ["./hardhat.config.js"],
-  "include": ["./hardhat.config.ts", "./scripts", "tests", "tasks", "./deploy", "./test.config.d.ts", "./build/typechain", "./typechain"]
+  "include": ["./hardhat.config.ts", "./scripts", "test", "tasks", "./deploy", "./test.config.d.ts", "./build/typechain", "./typechain"]
   //   "include": ["./test"]
 }

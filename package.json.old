@@ -61,10 +61,14 @@
   "name": "defi-invest-smart-contract",
   "scripts": {
     "auto-test": "slither .",
+    "clean": "rm -r node_modules package-json.lock",
     "compile": "npx hardhat compile",
     "deploy:localhost": "npx hardhat --network localhost run scripts/deploy.ts",
+    "format": "npx prettier --write ./ && eslint --fix ./",
+    "lint": "npx solhint contracts/* contracts/**/* contracts/**/**/* contracts/**/**/**/*",
     "local-node": "docker-compose --file ./docker-compose.yaml up -d",
     "local-node-stop": "docker-compose --file ./docker-compose.yaml down -v && docker-compose --file ./docker-compose.yaml rm -v",
+    "push": "git add ./ && git commit -m 'refactoring' -a && git push origin slaweekq",
     "test": "npx hardhat test"
   },
   "version": "0.0.1"
