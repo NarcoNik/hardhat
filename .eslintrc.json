@@ -13,9 +13,9 @@
       "files": ["*.ts"]
     }
   ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "parser": "@typescript-eslint/parser",
-    "project": "tsconfig.json",
+    "project": "./tsconfig.json",
     "ecmaVersion": "latest",
     "sourceType": "module"
   },
@@ -23,7 +23,7 @@
   "root": true,
   "rules": {
     "@typescript-eslint/comma-dangle": ["error", "never"],
-    // "@typescript-eslint/dot-notation": "off",
+    "@typescript-eslint/dot-notation": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/naming-convention": "off",
     "@typescript-eslint/no-empty-function": "off",

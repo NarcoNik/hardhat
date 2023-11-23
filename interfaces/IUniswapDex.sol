@@ -20,7 +20,14 @@ interface IRouter {
         uint256 amountETHMin,
         address to,
         uint256 deadline
-    ) external payable returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
+    )
+        external
+        payable
+        returns (
+            uint256 amountToken,
+            uint256 amountETH,
+            uint256 liquidity
+        );
 
     function swapExactTokensForETHSupportingFeeOnTransferTokens(
         uint256 amountIn,
@@ -30,5 +37,10 @@ interface IRouter {
         uint256 deadline
     ) external;
 
-    function swapExactETHForTokensSupportingFeeOnTransferTokens(uint256 amountOutMin, address[] calldata path, address to, uint256 deadline) external payable;
+    function swapExactETHForTokensSupportingFeeOnTransferTokens(
+        uint256 amountOutMin,
+        address[] calldata path,
+        address to,
+        uint256 deadline
+    ) external payable;
 }

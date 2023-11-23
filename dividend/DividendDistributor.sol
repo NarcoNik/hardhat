@@ -55,9 +55,9 @@ contract DividendDistributor is IDividendDistributor, ReentrancyGuard {
         rewardToken = IERC20(rewardToken_);
         router = IUniswapV2Router02(router_);
 
-        dividendsPerShareAccuracyFactor = 10 ** 36;
+        dividendsPerShareAccuracyFactor = 10**36;
         minPeriod = 1 hours;
-        minDistribution = 1 * (10 ** rewardToken.decimals());
+        minDistribution = 1 * (10**rewardToken.decimals());
     }
 
     function setDistributionCriteria(uint256 _minPeriod, uint256 _minDistribution) external override onlyToken {

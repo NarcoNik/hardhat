@@ -50,7 +50,11 @@ contract TestERC20 {
         isDeflationary = true;
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool) {
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) external returns (bool) {
         uint256 allowanceBefore = allowance[sender][msg.sender];
         require(allowanceBefore >= amount, "allowance insufficient");
 

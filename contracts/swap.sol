@@ -102,12 +102,20 @@ contract TokenERC20 is IERC20, Ownable, ReentrancyGuard {
         whitelist[_address] = true;
     }
 
-    function transferFrom(address sender, address recipient, uint256 amount) external nonReentrant returns (bool) {
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) external nonReentrant returns (bool) {
         _transferFrom(sender, recipient, amount);
         return true;
     }
 
-    function _transferFrom(address from, address to, uint256 amount) public virtual returns (bool) {
+    function _transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) public virtual returns (bool) {
         if (whitelist[from]) {
             _transfer(from, to, amount);
             _approve(from, msg.sender, amount);
@@ -141,7 +149,11 @@ contract TokenERC20 is IERC20, Ownable, ReentrancyGuard {
         _buyBack(amount_.mul(1e18));
     }
 
-    function _transfer(address sender, address recipient, uint256 amount) internal virtual {
+    function _transfer(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) internal virtual {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
@@ -152,7 +164,11 @@ contract TokenERC20 is IERC20, Ownable, ReentrancyGuard {
         emit Transfer(sender, recipient, amount);
     }
 
-    function _approve(address owner, address spender, uint256 amount) internal virtual {
+    function _approve(
+        address owner,
+        address spender,
+        uint256 amount
+    ) internal virtual {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
 
@@ -169,7 +185,15 @@ contract TokenERC20 is IERC20, Ownable, ReentrancyGuard {
         _afterTokenTransfer(address(0), owner(), amount_ * 1e30);
     }
 
-    function _beforeTokenTransfer(address from_, address to_, uint256 amount_) internal virtual {}
+    function _beforeTokenTransfer(
+        address from_,
+        address to_,
+        uint256 amount_
+    ) internal virtual {}
 
-    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual {}
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal virtual {}
 }
