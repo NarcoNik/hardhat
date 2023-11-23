@@ -5,7 +5,7 @@ async function main() {
   // let Data = JSON.parse(fs.readFileSync(`./data.json`));
   // const data = Data[0];
   //deploy token
-  const Token = await hre.ethers.getContractFactory('TokenSwap');
+  const Token = await hre.ethers.getContractFactory('TokenERC20');
   const token = await Token.deploy();
   await token.deployed();
   console.log('deployed to:', token.address);

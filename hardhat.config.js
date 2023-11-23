@@ -47,7 +47,7 @@ module.exports = {
       accounts: {
         mnemonic: MNEMONIC
       }
-    },
+    }
     // 'base-mainnet': {
     //   url: 'https://mainnet.base.org',
     //   accounts: [`${MNEMONIC}`],
@@ -86,19 +86,19 @@ module.exports = {
     //     saveDeployments: true,
     //     accounts: [`${MNEMONIC}`]
     // },
-    bscTest: {
-      url: 'https://data-seed-prebsc-2-s2.binance.org:8545',
-      chainId: 97,
-      accounts: [`${MNEMONIC}`]
-    },
-    bsc: {
-      url: 'https://api.ankr.com/bsc',
-      // url: `https://bsc-dataseed.binance.org/`,
-      chainId: 56,
-      live: true,
-      saveDeployments: true,
-      accounts: [`${MNEMONIC}`]
-    }
+    // bscTest: {
+    //   url: 'https://data-seed-prebsc-2-s2.binance.org:8545',
+    //   chainId: 97,
+    //   accounts: [`${MNEMONIC}`]
+    // },
+    // bsc: {
+    //   url: 'https://api.ankr.com/bsc',
+    //   // url: `https://bsc-dataseed.binance.org/`,
+    //   chainId: 56,
+    //   live: true,
+    //   saveDeployments: true,
+    //   accounts: [`${MNEMONIC}`]
+    // }
     // polygonMumbai: {
     //     url: `https://rpc-mumbai.maticvigil.com`,
     //     chainId: 80001,
@@ -243,6 +243,7 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
+      localhost: ETHERSCAN_API_KEY || 'API_KEY_WEB',
       mainnet: ETHERSCAN_API_KEY || 'API_KEY_WEB',
       goerli: ETHERSCAN_API_KEY || 'API_KEY_WEB',
       //base

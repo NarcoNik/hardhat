@@ -59,6 +59,8 @@
     "dep": "node scripts/dep.js",
     "format": "npx prettier --write ./ && eslint --fix ./",
     "lint": "npx solhint contracts/* contracts/**/* && eslint test/** ",
+    "local-node": "docker compose --file ./docker-compose.yaml up -d",
+    "local-node-stop": "docker compose --file ./docker-compose.yaml down -v && docker-compose --file ./docker-compose.yaml rm -v",
     "push": "git add ./ && git commit -m 'new' -a && git push origin",
     "test": "npx hardhat test//npx hardhat run deploy.js --network localhost",
     "verify": "node scripts/verify.js"
