@@ -6,23 +6,33 @@ npm i @openzeppelin/contracts-upgradeable@latest \
   @uniswap/v2-periphery@latest \
   @uniswap/v3-core@latest \
   @uniswap/v3-periphery@latest \
-  web3@latest \
+  web3 \
   dotenv@latest \
-  @truffle/hdwallet-provider@latest \
-  @typechain/ethers-v5@latest \
+  @truffle/hdwallet-provider \
   @nomiclabs/hardhat-waffle@latest \
   @nomiclabs/hardhat-ethers@latest \
-  ganache-core@latest \
+  @nomiclabs/hardhat-etherscan@latest \
   hardhat@latest \
   keythereum@latest \
-  truffle-plugin-verify@latest \
-  @nomiclabs/hardhat-etherscan@latest \
+  @types/chai@latest \
   @types/jest@latest \
   @types/mocha@latest \
+  @types/node@latest \
+  @typechain/ethers-v5 \
   @typechain/hardhat@latest \
   chai@latest \
   eth-gas-reporter@latest \
   hardhat-contract-sizer@latest \
   hardhat-gas-reporter@latest \
   ts-node@latest \
-  typescript@latest --force
+  eslint@latest \
+  eslint-config-airbnb-base@latest \
+  eslint-config-airbnb-typescript@latest \
+  eslint-config-prettier@latest \
+  eslint-plugin-import@latest \
+  eslint-plugin-prettier@latest \
+  eslint-plugin-simple-import-sort@latest \
+  eslint-plugin-unused-imports@latest \
+  typescript@latest \
+  truffle-plugin-verify@latest \
+  ganache-core@latest
