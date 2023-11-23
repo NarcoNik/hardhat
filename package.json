@@ -60,7 +60,7 @@
     "format": "npx prettier --write ./ && eslint --fix ./",
     "lint": "npx solhint contracts/* contracts/**/* && eslint test/** ",
     "push": "git add ./ && git commit -m 'new' -a && git push origin",
-    "test": "npx hardhat test//npx hardhat run deploy.js --network ropsten",
+    "test": "npx hardhat test//npx hardhat run deploy.js --network localhost",
     "verify": "node scripts/verify.js"
   },
   "version": "1.0.0"
