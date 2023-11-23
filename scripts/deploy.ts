@@ -1,17 +1,17 @@
 // const fs = require('fs');
-const hre = require('hardhat');
+import { ethers, run } from 'hardhat';
 
 async function main() {
   // let Data = JSON.parse(fs.readFileSync(`./data.json`));
   // const data = Data[0];
   //deploy token
-  const Token = await hre.ethers.getContractFactory('TokenERC20');
+  const Token = await ethers.getContractFactory('TokenERC20');
   const token = await Token.deploy();
   await token.deployed();
   console.log('deployed to:', token.address);
   //verify Token
-  await new Promise(r => setTimeout(r, 3000));
-  await hre.run('verify:verify', {
+  await new Promise(r => setTimeout(r, 5000));
+  await run('verify:verify', {
     address: token.address,
     constructorArguments: []
   });

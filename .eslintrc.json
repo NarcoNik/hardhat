@@ -1,8 +1,11 @@
 {
   "env": {
     "browser": true,
+    "node": true,
     "es6": true,
-    "node": true
+    "commonjs": true,
+    "mocha": true,
+    "jest": true
   },
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended", "airbnb-typescript", "prettier"],
   "overrides": [
@@ -10,10 +13,10 @@
       "files": ["*.ts"]
     }
   ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
+    "project": "tsconfig.json",
     "ecmaVersion": "latest",
-    "parser": "@typescript-eslint/parser",
-    "project": "./tsconfig.json",
     "sourceType": "module"
   },
   "plugins": ["@typescript-eslint", "prettier", "simple-import-sort", "unused-imports", "import"],
@@ -28,6 +31,7 @@
     "@typescript-eslint/no-inferrable-types": "off",
     "@typescript-eslint/no-magic-numbers": "off",
     "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/no-useless-constructor": "off",
     "@typescript-eslint/no-var-requires": "off",
     // Styling.
@@ -35,26 +39,11 @@
     "class-method-use-this": "off",
     "class-methods-use-this": "off",
     "comma-dangle": "off",
-    // "@typescript-eslint/no-unused-vars": [
-    //   "error",
-    //   {
-    //     vars: "all",
-    //     args: "all",
-    //     ignoreRestSiblings: false,
-    //     argsIgnorePattern: "^_"
-    //   }
-    // ],
-    // "@typescript-eslint/naming-convention": [
-    //   "error",
-    //   {
-    //     "format": ["UPPER_CASE"],
-    //     "selector": "enumMember"
-    //   }
-    // ],
     "complexity": "off",
-    // "complexity": ["error", 20],
-    "eqeqeq": ["error", "always"],
+    "eqeqeq": "off",
     "import/extensions": "off",
+    // "complexity": ["error", 20],
+    // "eqeqeq": ["error", "always"],
     // Temporary rules. Remove after full refactoring.
     "import/no-extraneous-dependencies": "off",
     "import/no-mutable-exports": "off",
@@ -107,7 +96,24 @@
     "object-curly-spacing": ["error", "always"],
     "prefer-const": "off",
     "prefer-destructuring": "off",
-    "quotes": ["error", "single"],
+    // "@typescript-eslint/no-unused-vars": [
+    //   "error",
+    //   {
+    //     vars: "all",
+    //     args: "all",
+    //     ignoreRestSiblings: false,
+    //     argsIgnorePattern: "^_"
+    //   }
+    // ],
+    // "@typescript-eslint/naming-convention": [
+    //   "error",
+    //   {
+    //     "format": ["UPPER_CASE"],
+    //     "selector": "enumMember"
+    //   }
+    // ],
+    "quotes": "off",
+    // "quotes": ["error", "single"],
     "radix": ["warn", "as-needed"],
     "react/jsx-filename-extension": "off",
     "semi": ["error", "always"],

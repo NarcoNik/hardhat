@@ -1,17 +1,20 @@
-require('hardhat-deploy');
-require('hardhat-abi-exporter');
-require('solidity-coverage');
-require('@typechain/hardhat');
-require('@nomiclabs/hardhat-ethers');
-require('@nomiclabs/hardhat-waffle');
-require('@nomiclabs/hardhat-etherscan');
-require('hardhat-contract-sizer');
-require('hardhat-gas-reporter');
-require('@openzeppelin/hardhat-upgrades');
-require('dotenv').config({ path: __dirname + '/.env' });
+import 'hardhat-deploy';
+import 'hardhat-abi-exporter';
+import 'solidity-coverage';
+import '@typechain/hardhat';
+import '@nomiclabs/hardhat-ethers';
+import '@nomiclabs/hardhat-waffle';
+import '@nomiclabs/hardhat-etherscan';
+import 'hardhat-gas-reporter';
+import '@openzeppelin/hardhat-upgrades';
+
+import dotenv from 'dotenv';
+import { HardhatUserConfig } from 'hardhat/config';
+
+dotenv.config({ path: __dirname + '/.env' });
 
 /** @type import('hardhat/config').HardhatUserConfig */
-const { REPORT_GAS, INFURA_ID, ALCHEMY_ID, BASESCAN_API_KEY, BSCSCAN_API_KEY, MNEMONIC, ETHERSCAN_API_KEY } = process.env;
+const { REPORT_GAS, INFURA_ID, ALCHEMY_ID, BASESCAN_API_KEY, BSCSCAN_API_KEY, POLYGONSCAN_API_KEY, MNEMONIC, ETHERSCAN_API_KEY } = process.env;
 const DEFAULT_COMPILER_SETTINGS = {
   version: '0.8.16',
   settings: {
@@ -25,20 +28,24 @@ const DEFAULT_COMPILER_SETTINGS = {
     evmVersion: 'istanbul'
   }
 };
-module.exports = {
+const config: HardhatUserConfig  = {
   defaultNetwork: 'localhost',
-  contracts_directory: './contracts',
   networks: {
     hardhat: {
-      chainId: 137,
+      //   chainId: 137,
+      //   forking: {
+      //     url: 'https://polygon-rpc.com',
+      //     blockNumber: 34298636
+      //   },
+      chainId: 1,
       forking: {
-        url: 'https://polygon-rpc.com',
-        blockNumber: 34298636
+        url: `https://mainnet.infura.io/v3/${INFURA_ID}`,
+        blockNumber: 18311034
       },
       allowUnlimitedContractSize: true,
       loggingEnabled: false,
       accounts: {
-        count: 100
+        mnemonic: MNEMONIC
       }
     },
     localhost: {
@@ -243,6 +250,7 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
+      hardhat: ETHERSCAN_API_KEY || 'API_KEY_WEB',
       localhost: ETHERSCAN_API_KEY || 'API_KEY_WEB',
       mainnet: ETHERSCAN_API_KEY || 'API_KEY_WEB',
       goerli: ETHERSCAN_API_KEY || 'API_KEY_WEB',
@@ -253,12 +261,12 @@ module.exports = {
       // shibarium: '',
       // binance smart chain
       bsc: BSCSCAN_API_KEY || 'API_KEY_WEB',
-      bscTestnet: BSCSCAN_API_KEY || 'API_KEY_WEB'
+      bscTestnet: BSCSCAN_API_KEY || 'API_KEY_WEB',
       // // fantom mainnet
       // opera: FANTOMSCAN_API_KEY|| 'API_KEY_WEB',
       // ftmTestnet: FANTOMSCAN_API_KEY|| 'API_KEY_WEB',
       // // polygon
-      // polygon: POLYGONSCAN_API_KEY|| 'API_KEY_WEB',
+      polygon: POLYGONSCAN_API_KEY || 'API_KEY_WEB'
       // polygonMumbai: POLYGONSCAN_API_KEY|| 'API_KEY_WEB',
       // // avalanche
       // avalanche: AVALANCHE_API_KEY|| 'API_KEY_WEB',
@@ -374,20 +382,24 @@ module.exports = {
       //     }
     ]
   },
-  solidity: { compilers: [DEFAULT_COMPILER_SETTINGS] },
-  contractSizer: {
-    alphaSort: false,
-    disambiguatePaths: true,
-    runOnCompile: false
+    namedAccounts: {
+    deployer: 0,
+    admin: 1
   },
+  solidity: { compilers: [DEFAULT_COMPILER_SETTINGS] },
+//   contractSizer: {
+//     alphaSort: false,
+//     disambiguatePaths: true,
+//     runOnCompile: false
+//   },
   paths: {
-    tests: './tests',
+    tests: './test',
     artifacts: './build/artifacts',
     cache: './build/cache',
     deployments: './build/deployments'
   },
   abiExporter: {
-    path: './build/abi',
+    path: './build/abis',
     runOnCompile: true,
     clear: true,
     flat: true,
@@ -403,5 +415,9 @@ module.exports = {
     enabled: REPORT_GAS === ('true' || true) ? true : false,
     noColors: true,
     outputFile: 'reports/gas_usage/summary.txt'
+  },
+    mocha: {
+    timeout: 100000
   }
 };
+export default config;

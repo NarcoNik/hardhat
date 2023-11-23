@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "downlevelIteration": true,
@@ -18,10 +19,9 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es6",
-    "typeRoots": ["./node_modules/@types", "./types"],
-    "types": ["@nomiclabs/hardhat-ethers", "@nomiclabs/hardhat-waffle"]
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
-  "files": ["./hardhat.config.js"],
-  "include": ["./hardhat.config.ts", "./scripts", "test", "tasks", "./deploy", "./test.config.d.ts", "./build/typechain", "./typechain"]
-  //   "include": ["./test"]
+  "files": ["hardhat.config.ts"],
+  "include": [ "scripts", "tests",    "build"],
+  "exclude": ["node_modules"]
 }
