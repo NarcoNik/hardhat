@@ -1,10 +1,15 @@
 {
   "extends": "solhint:recommended",
-  "plugins": ["prettier"],
+  "plugins": [
+    "prettier"
+  ],
   "rules": {
     "avoid-low-level-calls": "off",
     "avoid-tx-origin": "off",
-    "compiler-version": ["error", "^0.8.0"],
+    "compiler-version": [
+      "error",
+      "^0.8.0"
+    ],
     "const-name-snakecase": "off",
     "contract-name-camelcase": "off",
     "custom-errors": "off",

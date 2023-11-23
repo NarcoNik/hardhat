@@ -2,7 +2,9 @@
   "$schema": "http://json.schemastore.org/prettierrc",
   "overrides": [
     {
-      "files": ["*.sol"],
+      "files": [
+        "*.sol"
+      ],
       "options": {
         "arrowParens": "avoid",
         "bracketSpacing": false,
@@ -16,7 +18,11 @@
       }
     },
     {
-      "files": ["*.js", "*.ts", "*.json"],
+      "files": [
+        "*.js",
+        "*.ts",
+        "*.json"
+      ],
       "options": {
         "arrowParens": "avoid",
         "bracketSameLine": false,
@@ -34,7 +40,10 @@
       }
     },
     {
-      "files": ["*.jsx", "*.tsx"],
+      "files": [
+        "*.jsx",
+        "*.tsx"
+      ],
       "options": {
         "arrowParens": "avoid",
         "bracketSameLine": false,
