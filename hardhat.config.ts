@@ -28,7 +28,7 @@ const DEFAULT_COMPILER_SETTINGS = {
     evmVersion: 'istanbul'
   }
 };
-const config: HardhatUserConfig  = {
+const config: HardhatUserConfig = {
   defaultNetwork: 'localhost',
   networks: {
     hardhat: {
@@ -382,16 +382,16 @@ const config: HardhatUserConfig  = {
       //     }
     ]
   },
-    namedAccounts: {
+  namedAccounts: {
     deployer: 0,
     admin: 1
   },
   solidity: { compilers: [DEFAULT_COMPILER_SETTINGS] },
-//   contractSizer: {
-//     alphaSort: false,
-//     disambiguatePaths: true,
-//     runOnCompile: false
-//   },
+  //   contractSizer: {
+  //     alphaSort: false,
+  //     disambiguatePaths: true,
+  //     runOnCompile: false
+  //   },
   paths: {
     tests: './test',
     artifacts: './build/artifacts',
@@ -416,7 +416,7 @@ const config: HardhatUserConfig  = {
     noColors: true,
     outputFile: 'reports/gas_usage/summary.txt'
   },
-    mocha: {
+  mocha: {
     timeout: 100000
   }
 };
