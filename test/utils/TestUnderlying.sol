@@ -2,9 +2,11 @@
 
 pragma solidity ^0.8.0;
 
-contract TestERC20 {
+contract TestUnderlying {
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
+
+    address public constant underlying = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
 
     event Transfer(address indexed from, address indexed to, uint256 value);
 
@@ -50,11 +52,7 @@ contract TestERC20 {
         isDeflationary = true;
     }
 
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool) {
         uint256 allowanceBefore = allowance[sender][msg.sender];
         require(allowanceBefore >= amount, "allowance insufficient");
 

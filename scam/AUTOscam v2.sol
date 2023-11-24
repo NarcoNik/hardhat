@@ -23,11 +23,7 @@ interface IBEP20 {
 
     function approve(address spender, uint256 amount) external returns (bool);
 
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
@@ -94,13 +90,7 @@ interface IDEXRouter {
         uint256 amountBMin,
         address to,
         uint256 deadline
-    )
-        external
-        returns (
-            uint256 amountA,
-            uint256 amountB,
-            uint256 liquidity
-        );
+    ) external returns (uint256 amountA, uint256 amountB, uint256 liquidity);
 
     function addLiquidityETH(
         address token,
@@ -109,14 +99,7 @@ interface IDEXRouter {
         uint256 amountETHMin,
         address to,
         uint256 deadline
-    )
-        external
-        payable
-        returns (
-            uint256 amountToken,
-            uint256 amountETH,
-            uint256 liquidity
-        );
+    ) external payable returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
 
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
         uint256 amountIn,
@@ -126,12 +109,7 @@ interface IDEXRouter {
         uint256 deadline
     ) external;
 
-    function swapExactETHForTokensSupportingFeeOnTransferTokens(
-        uint256 amountOutMin,
-        address[] calldata path,
-        address to,
-        uint256 deadline
-    ) external payable;
+    function swapExactETHForTokensSupportingFeeOnTransferTokens(uint256 amountOutMin, address[] calldata path, address to, uint256 deadline) external payable;
 
     function swapExactTokensForETHSupportingFeeOnTransferTokens(
         uint256 amountIn,
@@ -177,10 +155,10 @@ contract DividendDistributor is IDividendDistributor, ReentrancyGuard {
     uint256 public totalDividends;
     uint256 public totalDistributed; // to be shown in UI
     uint256 public dividendsPerShare;
-    uint256 public dividendsPerShareAccuracyFactor = 10**36;
+    uint256 public dividendsPerShareAccuracyFactor = 10 ** 36;
 
     uint256 public minPeriod = 1 hours;
-    uint256 public minDistribution = 10 * (10**18);
+    uint256 public minDistribution = 10 * (10 ** 18);
 
     uint256 currentIndex;
 
@@ -316,7 +294,7 @@ contract ETHPP is IBEP20, Auth {
     string constant _symbol = "ETHPP";
     uint8 constant _decimals = 6;
 
-    uint256 _totalSupply = 1_000_000_000_000_000 * (10**_decimals);
+    uint256 _totalSupply = 1_000_000_000_000_000 * (10 ** _decimals);
     uint256 public _maxTxAmount = _totalSupply.div(40); // 2.5%
     uint256 public _maxWallet = _totalSupply.div(40); // 2.5%
 
@@ -447,22 +425,14 @@ contract ETHPP is IBEP20, Auth {
         return _transferFrom(msg.sender, recipient, amount);
     }
 
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external override returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) external override returns (bool) {
         if (_allowances[sender][msg.sender] != _totalSupply)
             _allowances[sender][msg.sender] = _allowances[sender][msg.sender].sub(amount, "Insufficient Allowance");
 
         return _transferFrom(sender, recipient, amount);
     }
 
-    function _transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal returns (bool) {
+    function _transferFrom(address sender, address recipient, uint256 amount) internal returns (bool) {
         if (inSwap) return _basicTransfer(sender, recipient, amount);
 
         // Max  tx check
@@ -502,11 +472,7 @@ contract ETHPP is IBEP20, Auth {
         return true;
     }
 
-    function _basicTransfer(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal returns (bool) {
+    function _basicTransfer(address sender, address recipient, uint256 amount) internal returns (bool) {
         _balances[sender] = _balances[sender].sub(amount, "Insufficient Balance");
         _balances[recipient] = _balances[recipient].add(amount);
         //        emit Transfer(sender, recipient, amount);
@@ -541,11 +507,7 @@ contract ETHPP is IBEP20, Auth {
         return totalFee;
     }
 
-    function takeFee(
-        address sender,
-        address receiver,
-        uint256 amount
-    ) internal returns (uint256) {
+    function takeFee(address sender, address receiver, uint256 amount) internal returns (uint256) {
         uint256 feeAmount = amount.mul(getTotalFee(receiver == pair)).div(feeDenominator);
 
         _balances[address(this)] = _balances[address(this)].add(feeAmount);
@@ -628,12 +590,7 @@ contract ETHPP is IBEP20, Auth {
         payable(msg.sender).transfer(balance);
     }
 
-    function setAutoBuybackSettings(
-        bool _enabled,
-        uint256 _cap,
-        uint256 _amount,
-        uint256 _period
-    ) external authorized {
+    function setAutoBuybackSettings(bool _enabled, uint256 _cap, uint256 _amount, uint256 _period) external authorized {
         autoBuybackEnabled = _enabled;
         autoBuybackCap = _cap;
         autoBuybackAccumulator = 0;
@@ -642,11 +599,7 @@ contract ETHPP is IBEP20, Auth {
         autoBuybackBlockLast = block.number;
     }
 
-    function setBuybackMultiplierSettings(
-        uint256 numerator,
-        uint256 denominator,
-        uint256 length
-    ) external authorized {
+    function setBuybackMultiplierSettings(uint256 numerator, uint256 denominator, uint256 length) external authorized {
         require(numerator / denominator <= 2 && numerator > denominator);
         buybackMultiplierNumerator = numerator;
         buybackMultiplierDenominator = denominator;
@@ -700,13 +653,7 @@ contract ETHPP is IBEP20, Auth {
         return _isFree[holder];
     }
 
-    function setFees(
-        uint256 _liquidityFee,
-        uint256 _buybackFee,
-        uint256 _reflectionFee,
-        uint256 _marketingFee,
-        uint256 _feeDenominator
-    ) external authorized {
+    function setFees(uint256 _liquidityFee, uint256 _buybackFee, uint256 _reflectionFee, uint256 _marketingFee, uint256 _feeDenominator) external authorized {
         liquidityFee = _liquidityFee;
         buybackFee = _buybackFee;
         reflectionFee = _reflectionFee;

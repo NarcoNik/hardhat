@@ -16,7 +16,7 @@
       }
     },
     {
-      "files": ["*.js", "*.ts", "*.json"],
+      "files": ["*.json", "*.js", "*.ts"],
       "options": {
         "arrowParens": "avoid",
         "bracketSameLine": false,

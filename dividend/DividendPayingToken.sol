@@ -15,7 +15,7 @@ contract DividendPayingToken is ERC20, DividendPayingTokenInterface, DividendPay
     using SafeMathUint for uint256;
     using SafeMathInt for int256;
 
-    uint256 internal constant magnitude = 2**128;
+    uint256 internal constant magnitude = 2 ** 128;
 
     uint256 internal magnifiedDividendPerShare;
 
@@ -79,11 +79,7 @@ contract DividendPayingToken is ERC20, DividendPayingTokenInterface, DividendPay
         return magnifiedDividendPerShare.mul(balanceOf(_owner)).toInt256Safe().add(magnifiedDividendCorrections[_owner]).toUint256Safe() / magnitude;
     }
 
-    function _transfer(
-        address from,
-        address to,
-        uint256 value
-    ) internal virtual override {
+    function _transfer(address from, address to, uint256 value) internal virtual override {
         require(false);
 
         int256 _magCorrection = magnifiedDividendPerShare.mul(value).toInt256Safe();

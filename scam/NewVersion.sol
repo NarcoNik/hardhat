@@ -24,11 +24,7 @@ interface IERC20 {
 
     function approve(address spender, uint256 amount) external returns (bool);
 
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 
     event Transfer(address indexed from, address indexed to, uint256 value);
 
@@ -91,11 +87,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return true;
     }
 
-    function transfer(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal virtual {
+    function transfer(address sender, address recipient, uint256 amount) internal virtual {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
@@ -107,11 +99,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         emit Transfer(sender, recipient, amount);
     }
 
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) public virtual override returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         _transfer(sender, recipient, amount);
 
         uint256 currentAllowance = _allowances[sender][_msgSender()];
@@ -134,11 +122,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         return true;
     }
 
-    function _transfer(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal virtual {
+    function _transfer(address sender, address recipient, uint256 amount) internal virtual {
         require(sender != address(0), "ERC20: transfer from the zero address");
         require(recipient != address(0), "ERC20: transfer to the zero address");
 
@@ -162,11 +146,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         emit Transfer(address(0), account, amount);
     }
 
-    function _approve(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {
+    function _approve(address owner, address spender, uint256 amount) internal virtual {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
 
@@ -174,11 +154,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         emit Approval(owner, spender, amount);
     }
 
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {}
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {}
 }
 
 library Address {
@@ -240,14 +216,7 @@ interface IRouter {
         uint256 amountETHMin,
         address to,
         uint256 deadline
-    )
-        external
-        payable
-        returns (
-            uint256 amountToken,
-            uint256 amountETH,
-            uint256 liquidity
-        );
+    ) external payable returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
 
     function swapExactTokensForETHSupportingFeeOnTransferTokens(
         uint256 amountIn,
@@ -268,7 +237,7 @@ contract OgMEME is ERC20, Ownable {
     bool private providingLiquidity = false;
     bool public tradingEnabled = false;
 
-    uint256 _totalSupply = 1_000_000_000 * 10**decimals();
+    uint256 _totalSupply = 1_000_000_000 * 10 ** decimals();
 
     uint256 private tokenLiquidityThreshold = (_totalSupply * 5) / 1000;
 
@@ -331,11 +300,7 @@ contract OgMEME is ERC20, Ownable {
         return true;
     }
 
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) public override returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
         _transfer(sender, recipient, amount);
 
         uint256 currentAllowance = _allowances[sender][_msgSender()];
@@ -363,11 +328,7 @@ contract OgMEME is ERC20, Ownable {
         return true;
     }
 
-    function _transfer(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) internal override {
+    function _transfer(address sender, address recipient, uint256 amount) internal override {
         require(amount > 0, "Transfer amount must be greater than zero");
 
         if (!exemptFee[sender] && !exemptFee[recipient]) require(tradingEnabled, "Trading not enabled");
@@ -495,7 +456,7 @@ contract OgMEME is ERC20, Ownable {
 
     function updateLiquidityTreshhold(uint256 new_amount) external onlyOwner {
         //update the treshhold
-        tokenLiquidityThreshold = new_amount * 10**decimals();
+        tokenLiquidityThreshold = new_amount * 10 ** decimals();
     }
 
     function openTrading() external onlyOwner {

@@ -1,18 +1,17 @@
 import 'hardhat-deploy';
 import 'hardhat-abi-exporter';
-import 'solidity-coverage';
-import '@typechain/hardhat';
+import 'hardhat-gas-reporter';
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-etherscan';
-import 'hardhat-gas-reporter';
 import '@openzeppelin/hardhat-upgrades';
+import '@typechain/hardhat';
+import 'solidity-coverage';
 
 import dotenv from 'dotenv';
 import { HardhatUserConfig } from 'hardhat/config';
 
 dotenv.config({ path: __dirname + '/.env' });
-
 /** @type import('hardhat/config').HardhatUserConfig */
 const { REPORT_GAS, INFURA_ID, ALCHEMY_ID, BASESCAN_API_KEY, BSCSCAN_API_KEY, POLYGONSCAN_API_KEY, MNEMONIC, ETHERSCAN_API_KEY } = process.env;
 const DEFAULT_COMPILER_SETTINGS = {

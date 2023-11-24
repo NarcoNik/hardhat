@@ -22,6 +22,6 @@
     "typeRoots": ["./node_modules/@types", "./types"]
   },
   "files": ["./hardhat.config.ts"],
-  "include": ["./hardhat.config.ts", "scripts", "tests", "tasks", "build"],
+  "include": ["./hardhat.config.ts", "scripts", "tests", "tasks", "deploy", "build"],
   "exclude": ["node_modules"]
 }

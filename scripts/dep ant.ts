@@ -1,17 +1,19 @@
-const fs = require('fs');
-const hre = require('hardhat');
-const Data = require('./data.json');
+import fs from 'fs';
+import { ethers, run } from 'hardhat';
+
+import Data from './data.json';
+
 async function main() {
   // let Data = JSON.parse(fs.readFileSync(`./data.json`));
   //deploy token
-  const Token = await hre.ethers.getContractFactory('Test');
+  const Token = await ethers.getContractFactory('Test');
   const token = await Token.deploy(Data[0].name, Data[0].symbol, Data[0].flags, Data[0].feesAndLimits, Data[0].markAddr);
   await token.deployed();
   console.log('deployed to:', token.address);
 
   //verify Token
   await new Promise(r => setTimeout(r, 3000));
-  await hre.run('verify:verify', {
+  await run('verify:verify', {
     address: token.address,
     constructorArguments: [Data[0].name, Data[0].symbol, Data[0].flags, Data[0].feesAndLimits, Data[0].markAddr]
   });

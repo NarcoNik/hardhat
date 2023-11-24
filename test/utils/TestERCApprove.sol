@@ -2,11 +2,11 @@
 
 pragma solidity ^0.8.0;
 
-contract TestUnderlying {
+contract TestERCApprove {
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
 
-    address public constant underlying = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
+    address public constant underlying = address(0);
 
     event Transfer(address indexed from, address indexed to, uint256 value);
 
@@ -24,6 +24,11 @@ contract TestUnderlying {
         uint256 balanceNext = balanceOf[to] + amount;
         require(balanceNext >= amount, "overflow balance");
         balanceOf[to] = balanceNext;
+    }
+
+    function burn(address from, uint256 amount) public returns (bool) {
+        balanceOf[from] = balanceOf[from] - amount;
+        return true;
     }
 
     function transfer(address recipient, uint256 amount) external returns (bool) {
@@ -52,11 +57,7 @@ contract TestUnderlying {
         isDeflationary = true;
     }
 
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 amount
-    ) external returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool) {
         uint256 allowanceBefore = allowance[sender][msg.sender];
         require(allowanceBefore >= amount, "allowance insufficient");
 

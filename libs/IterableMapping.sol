@@ -28,11 +28,7 @@ library IterableMapping {
         return map.keys.length;
     }
 
-    function set(
-        Map storage map,
-        address key,
-        uint256 val
-    ) internal {
+    function set(Map storage map, address key, uint256 val) internal {
         if (map.inserted[key]) map.values[key] = val;
         else {
             map.inserted[key] = true;
