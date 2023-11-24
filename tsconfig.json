@@ -21,7 +21,7 @@
     "target": "es6",
     "typeRoots": ["./node_modules/@types", "./types"]
   },
-  "files": ["hardhat.config.ts"],
-  "include": ["scripts", "tests", "build"],
+  "files": ["./hardhat.config.ts"],
+  "include": ["./hardhat.config.ts", "scripts", "tests", "tasks", "build"],
   "exclude": ["node_modules"]
 }
