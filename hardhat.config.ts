@@ -31,16 +31,16 @@ const config: HardhatUserConfig = {
   defaultNetwork: 'localhost',
   networks: {
     hardhat: {
-      //   chainId: 137,
-      //   forking: {
-      //     url: 'https://polygon-rpc.com',
-      //     blockNumber: 34298636
-      //   },
-      chainId: 1,
+      chainId: 137,
       forking: {
-        url: `https://mainnet.infura.io/v3/${INFURA_ID}`,
-        blockNumber: 18311034
+        url: 'https://polygon-rpc.com',
+        blockNumber: 34298636
       },
+      // chainId: 1,
+      // forking: {
+      //   url: `https://mainnet.infura.io/v3/${INFURA_ID}`,
+      //   blockNumber: 18725392
+      // },
       allowUnlimitedContractSize: true,
       loggingEnabled: false,
       accounts: {
