@@ -95,5 +95,5 @@
     "test": "npx hardhat test --network localhost",
     "verify": "npx hardhat run scripts/verify.ts"
   },
-  "version": "0.9.1"
+  "version": "0.9.7"
 }
