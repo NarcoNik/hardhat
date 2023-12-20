@@ -26,18 +26,6 @@
     "@openzeppelin/test-helpers": "0.5.16",
     "@solidstate/contracts": "^0.0.58",
     "@sushiswap/contracts": "^1.0.0-canary.0",
-    function withdraw(uint256 amtLP) external {
-        uint256 t = block.timestamp;
-        uint256 amtLPT = amtLP.mul(t);
-        if (amtLP >= userInfo[msg.sender].amtLP) {
-            // _withdraw(userInfo[msg.sender].amtLP)
-            delete userInfo[msg.sender];
-        } else if (amtLP < userInfo[msg.sender].amtLP) {
-            // _withdraw(amtLP)
-        }
-        allAmtLP -= amtLP;
-        allAmtLPT -= amtLPT;
-    }
     "@sushiswap/core": "^1.4.2",
     "@typechain/ethers-v5": "7.0.1",
     "@typechain/hardhat": "^2.3.0",

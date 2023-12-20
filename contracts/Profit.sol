@@ -23,13 +23,13 @@ contract Profit {
 
     mapping(address => UserInfo) userInfo;
 
-    function deposit(uint256 LP) external {
-        uint256 t = block.timestamp;
-        uint256 LPt = LP.mul(t);
-        userInfo[msg.sender] = UserInfo(t, LP, LPt);
-        allLP += LP;
-        allLPt += LPt;
-    }
+        function deposit(uint256 LP) external {
+            uint256 t = block.timestamp;
+            uint256 LPt = LP * t;
+            userInfo[msg.sender] = UserInfo(t, LP, LPt);
+            allLP += LP;
+            allLPt += LPt;
+        }
 
     function withdraw(uint256 LP) external {
         UserInfo storage user = userInfo[msg.sender];
@@ -47,11 +47,24 @@ contract Profit {
         }
         // _withdraw(LP)
 
-        allLP -= LP;
-        allLPt -= LPt;
+        // allLP -= LP;
+        // allLPt -= LPt;
     }
 
     function getUserInfo(address user) external view returns (UserInfo memory) {
         return userInfo[user];
     }
 }
+
+    // function withdraw(uint256 amtLP) external {
+    //     uint256 t = block.timestamp;
+    //     uint256 amtLPT = amtLP.mul(t);
+    //     if (amtLP >= userInfo[msg.sender].amtLP) {
+    //         // _withdraw(userInfo[msg.sender].amtLP)
+    //         delete userInfo[msg.sender];
+    //     } else if (amtLP < userInfo[msg.sender].amtLP) {
+    //         // _withdraw(amtLP)
+    //     }
+    //     allAmtLP -= amtLP;
+    //     allAmtLPT -= amtLPT;
+    // }
