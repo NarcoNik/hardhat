@@ -29,8 +29,9 @@ library IterableMapping {
     }
 
     function set(Map storage map, address key, uint256 val) internal {
-        if (map.inserted[key]) map.values[key] = val;
-        else {
+        if (map.inserted[key]) {
+            map.values[key] = val;
+        } else {
             map.inserted[key] = true;
             map.values[key] = val;
             map.indexOf[key] = map.keys.length;

@@ -29,7 +29,7 @@ const {
   COINMARKETCAP_API_KEY
 } = process.env;
 const DEFAULT_COMPILER_SETTINGS = {
-  version: '^0.5.0',
+  version: '0.8.22',
   settings: {
     optimizer: {
       enabled: true,

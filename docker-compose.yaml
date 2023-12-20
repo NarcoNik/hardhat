@@ -1,8 +1,0 @@
-version: "3"
-services:
-  local-node:
-    container_name: local-node-anvil
-    image: ghcr.io/foundry-rs/foundry:nightly
-    entrypoint: "anvil -f ${FORKING_URL} --host ${FORKING_NODE_HOST} --fork-block-number ${FORKING_BLOCKNUMBER} -m '${MNEMONIC}'"
-    ports:
-      - "8545:8545"
