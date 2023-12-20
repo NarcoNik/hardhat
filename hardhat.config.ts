@@ -29,7 +29,7 @@ const {
   COINMARKETCAP_API_KEY
 } = process.env;
 const DEFAULT_COMPILER_SETTINGS = {
-  version: '0.8.19',
+  version: '^0.5.0',
   settings: {
     optimizer: {
       enabled: true,
@@ -42,7 +42,7 @@ const DEFAULT_COMPILER_SETTINGS = {
   }
 };
 const config: HardhatUserConfig = {
-  defaultNetwork: 'localhost',
+  defaultNetwork: 'hardhat',
   solidity: { compilers: [DEFAULT_COMPILER_SETTINGS] },
   paths: {
     tests: './test',

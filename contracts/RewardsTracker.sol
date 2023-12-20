@@ -5,13 +5,15 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./interfaces/IDex.sol";
+import "./interfaces/DividendPayingTokenInterface.sol";
+import "./interfaces/DividendPayingTokenOptionalInterface.sol";
 
 /// @title RewardsTracker
 /// @author FreezyEx (https://github.com/FreezyEx)
 /// @dev A contract that allows anyone to pay and distribute ethers to users as shares.
 /// @notice This contract is based on erc1726 by Roger-Wu (https://github.com/Roger-Wu/erc1726-dividend-paying-token)
 
-contract RewardsTracker is Ownable {
+contract RewardsTracker is Ownable, DividendPayingTokenInterface, DividendPayingTokenOptionalInterface {
     mapping(address => uint256) public userShares;
     mapping(address => int256) internal magnifiedDividendCorrections;
     mapping(address => uint256) internal withdrawnDividends;
