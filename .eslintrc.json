@@ -7,20 +7,10 @@
     "mocha": true,
     "node": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended",
-    "airbnb-typescript",
-    "prettier"
-  ],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended", "airbnb-typescript", "prettier"],
   "overrides": [
     {
-      "files": [
-        "*.js",
-        "*.json",
-        "*.ts"
-      ]
+      "files": [".ts"]
     }
   ],
   "parser": "@typescript-eslint/parser",
@@ -29,19 +19,10 @@
     "project": "tsconfig.json",
     "sourceType": "module"
   },
-  "plugins": [
-    "@typescript-eslint",
-    "prettier",
-    "simple-import-sort",
-    "unused-imports",
-    "import"
-  ],
+  "plugins": ["@typescript-eslint", "prettier", "simple-import-sort", "unused-imports", "import"],
   "root": true,
   "rules": {
-    "@typescript-eslint/comma-dangle": [
-      "error",
-      "never"
-    ],
+    "@typescript-eslint/comma-dangle": ["error", "never"],
     // "@typescript-eslint/dot-notation": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/naming-convention": "off",
@@ -54,10 +35,7 @@
     "@typescript-eslint/no-useless-constructor": "off",
     "@typescript-eslint/no-var-requires": "off",
     // Styling.
-    "array-bracket-spacing": [
-      "error",
-      "never"
-    ],
+    "array-bracket-spacing": ["error", "never"],
     "class-method-use-this": "off",
     "class-methods-use-this": "off",
     "comma-dangle": "off",
@@ -74,10 +52,7 @@
     "import/no-unresolved": "off",
     "import/prefer-default-export": "off",
     "indent": "off",
-    "linebreak-style": [
-      "error",
-      "unix"
-    ],
+    "linebreak-style": ["error", "unix"],
     // Temporary rules. Remove as fast as it can be.
     "max-classes-per-file": "off",
     // "no-console": [
@@ -115,17 +90,10 @@
     "no-plusplus": "off",
     "no-prototype-builtins": "off",
     "no-restricted-globals": "off",
-    "no-restricted-syntax": [
-      "error",
-      "LabeledStatement",
-      "WithStatement"
-    ],
+    "no-restricted-syntax": ["error", "LabeledStatement", "WithStatement"],
     "no-return-assign": "off",
     "no-underscore-dangle": "off",
-    "object-curly-spacing": [
-      "error",
-      "always"
-    ],
+    "object-curly-spacing": ["error", "always"],
     "prefer-const": "off",
     "prefer-destructuring": "off",
     // "@typescript-eslint/no-unused-vars": [
@@ -146,15 +114,9 @@
     // ],
     "quotes": "off",
     // "quotes": ["error", "single"],
-    "radix": [
-      "warn",
-      "as-needed"
-    ],
+    "radix": ["warn", "as-needed"],
     "react/jsx-filename-extension": "off",
-    "semi": [
-      "error",
-      "always"
-    ],
+    "semi": ["error", "always"],
     "simple-import-sort/exports": "error",
     "simple-import-sort/imports": "error",
     "unused-imports/no-unused-imports": "error"

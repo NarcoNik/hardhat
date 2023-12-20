@@ -13,9 +13,23 @@ import { HardhatUserConfig } from 'hardhat/config';
 
 dotenv.config({ path: __dirname + '/.env' });
 /** @type import('hardhat/config').HardhatUserConfig */
-const { REPORT_GAS, INFURA_ID, ALCHEMY_ID, BASESCAN_API_KEY, BSCSCAN_API_KEY, POLYGONSCAN_API_KEY, MNEMONIC, ETHERSCAN_API_KEY } = process.env;
+const {
+  REPORT_GAS,
+  INFURA_API_KEY,
+  POLYGONSCAN_API_KEY,
+  MNEMONIC,
+  TOKEN,
+  GAS_PRICE_API,
+  NODE_HOST,
+  BLOCKNUMBER,
+  BSCSCAN_API_KEY,
+  PORT,
+  ETHERSCAN_API_KEY,
+  NETWORK_ID,
+  COINMARKETCAP_API_KEY
+} = process.env;
 const DEFAULT_COMPILER_SETTINGS = {
-  version: '0.8.16',
+  version: '0.8.19',
   settings: {
     optimizer: {
       enabled: true,
@@ -24,23 +38,34 @@ const DEFAULT_COMPILER_SETTINGS = {
     metadata: {
       bytecodeHash: 'none'
     },
-    evmVersion: 'istanbul'
+    evmVersion: 'shanghai'
   }
 };
 const config: HardhatUserConfig = {
   defaultNetwork: 'localhost',
+  solidity: { compilers: [DEFAULT_COMPILER_SETTINGS] },
+  paths: {
+    tests: './test',
+    artifacts: './build/artifacts',
+    cache: './build/cache',
+    deployments: './build/deployments'
+  },
+  typechain: {
+    outDir: './build/typechain',
+    target: 'ethers-v5'
+  },
   networks: {
     hardhat: {
-      chainId: 137,
-      forking: {
-        url: 'https://polygon-rpc.com',
-        blockNumber: 34298636
-      },
-      // chainId: 1,
+      // chainId: 137,
       // forking: {
-      //   url: `https://mainnet.infura.io/v3/${INFURA_ID}`,
-      //   blockNumber: 18725392
+      //   url: 'https://polygon-rpc.com',
+      //   blockNumber: 34298636
       // },
+      chainId: Number(NETWORK_ID),
+      forking: {
+        url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
+        blockNumber: Number(BLOCKNUMBER)
+      },
       allowUnlimitedContractSize: true,
       loggingEnabled: false,
       accounts: {
@@ -48,12 +73,18 @@ const config: HardhatUserConfig = {
       }
     },
     localhost: {
-      chainId: 1,
-      url: 'http://0.0.0.0:8545',
+      chainId: Number(NETWORK_ID),
+      url: `http://${NODE_HOST}:${PORT}`,
+      // accounts: [`${PRIVATE_KEY1}`, `${PRIVATE_KEY2}`, `${PRIVATE_KEY3}`],
       accounts: {
         mnemonic: MNEMONIC
       }
     }
+    // eth: {
+    //     url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`,
+    //     chainId: 1,
+    //     accounts: [`${MNEMONIC}`]
+    // },
     // 'base-mainnet': {
     //   url: 'https://mainnet.base.org',
     //   accounts: [`${MNEMONIC}`],
@@ -78,15 +109,9 @@ const config: HardhatUserConfig = {
     //   saveDeployments: true,
     //   accounts: [`${MNEMONIC}`]
     // },
-
-    // eth: {
-    //     url: `https://mainnet.infura.io/v3/${INFURA_ID}`,
-    //     chainId: 1,
-    //     accounts: [`${MNEMONIC}`]
-    // },
     // goerli: {
     //     url: `https://eth-goerli.g.alchemy.com/v2/${ALCHEMY_ID}`,
-    //     url: `https://goerli.infura.io/v3/${INFURA_ID}`,
+    //     url: `https://goerli.infura.io/v3/${INFURA_API_KEY}`,
     //     chainId: 5,
     //     live: false,
     //     saveDeployments: true,
@@ -254,8 +279,8 @@ const config: HardhatUserConfig = {
       mainnet: ETHERSCAN_API_KEY || 'API_KEY_WEB',
       goerli: ETHERSCAN_API_KEY || 'API_KEY_WEB',
       //base
-      'base-mainnet': BASESCAN_API_KEY || 'API_KEY_WEB',
-      'base-goerli': BASESCAN_API_KEY || 'API_KEY_WEB',
+      // 'base-mainnet': BASESCAN_API_KEY || 'API_KEY_WEB',
+      // 'base-goerli': BASESCAN_API_KEY || 'API_KEY_WEB',
       // shibarium
       // shibarium: '',
       // binance smart chain
@@ -385,18 +410,11 @@ const config: HardhatUserConfig = {
     deployer: 0,
     admin: 1
   },
-  solidity: { compilers: [DEFAULT_COMPILER_SETTINGS] },
   //   contractSizer: {
   //     alphaSort: false,
   //     disambiguatePaths: true,
   //     runOnCompile: false
   //   },
-  paths: {
-    tests: './test',
-    artifacts: './build/artifacts',
-    cache: './build/cache',
-    deployments: './build/deployments'
-  },
   abiExporter: {
     path: './build/abis',
     runOnCompile: true,
@@ -406,14 +424,15 @@ const config: HardhatUserConfig = {
     spacing: 2,
     pretty: true
   },
-  typechain: {
-    outDir: './build/typechain',
-    target: 'ethers-v5'
-  },
   gasReporter: {
     enabled: REPORT_GAS === ('true' || true) ? true : false,
     noColors: true,
-    outputFile: 'reports/gas_usage/summary.txt'
+    outputFile: 'reports/gas_usage/summary.txt',
+    currency: 'USD',
+    coinmarketcap: COINMARKETCAP_API_KEY,
+    token: TOKEN,
+    gasPriceApi: GAS_PRICE_API,
+    maxMethodDiff: 10
   },
   mocha: {
     timeout: 100000
