@@ -1,6 +1,11 @@
 let totalAmountLP = 0;
 let totalAmountWeight = 0;
 let percents = [];
+let farmedByDay = 100;
+let totalFarmed = 0;
+let startTime = 0;
+let reinvestTime = 0;
+let started = false;
 let UserInfo = [
   {
     user: 0,
@@ -48,17 +53,15 @@ let UserInfo = [
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-const init = () => {
-  UserInfo[0] = {
-    user: 0,
-    amountLP: 0,
-    lastUpdateTime: Number((new Date().getTime() / 1000).toFixed()),
-    weight: 0
-  };
-};
-
 const updateInfo = (type, id, curAmountLP, amountLP) => {
   const time = Number((new Date().getTime() / 1000).toFixed());
+
+  // if (UserInfo.length == 0) startTime = time;
+  if (!started) {
+    startTime = time;
+    started = true;
+  }
+
   const dTime = time - UserInfo[id].lastUpdateTime;
 
   const lastWeight = UserInfo[id].weight;
@@ -90,7 +93,6 @@ const updateInfo = (type, id, curAmountLP, amountLP) => {
 };
 
 const sendTransaction = (type, id, amountLP) => {
-  if (UserInfo.length == 0) init();
   console.log('user:', id);
   console.log(type + ' ~ before:', UserInfo[id]);
   let curAmountLP = UserInfo[id].amountLP;
@@ -110,7 +112,6 @@ const sendTransaction = (type, id, amountLP) => {
     if (!UserInfo[id] || curAmountLP <= 0) return console.error('You dont using this pool');
     if (curAmountLP < amountLP) return console.error('Insufficient LP amount');
   }
-
   if (updateInfo(type, id, curAmountLP, amountLP)) {
     //tranfer
     console.log('Done\n');
@@ -120,21 +121,39 @@ const sendTransaction = (type, id, amountLP) => {
 
 const getPercents = () => {
   for (let i = 0; i < UserInfo.length; i++) {
-    // if (UserInfo[i].weight != 0) {
-    const percentUser = Number(((UserInfo[i].weight * 100) / totalAmountWeight).toFixed(2));
-    percents[i] = percentUser;
-    // }
+    if (UserInfo[i].amountLP > 0) {
+      sendTransaction('reinvest', i, 0);
+    }
+  }
+  for (let a = 0; a < UserInfo.length; a++) {
+    const percentUser = Number(((UserInfo[a].weight * 100) / totalAmountWeight).toFixed(2));
+    percents[a] = percentUser;
   }
   console.log(percents);
 };
 
-const getAvailibleLP = () => {
+const _getTotalFarmed = () => {
+  const time = Number((new Date().getTime() / 1000).toFixed());
+  const dTime = time - startTime;
+  totalFarmed = farmedByDay * dTime;
+  console.log(totalFarmed);
+  return totalFarmed;
+};
+
+const reInvest = () => {
+  reinvestTime = Number((new Date().getTime() / 1000).toFixed());
+  getPercents();
+  const totalFarmed = _getTotalFarmed();
+
   const availibleLP = [];
   for (let i = 0; i < UserInfo.length; i++) {
-    const amtLP = (percents[i] * totalAmountLP) / 100;
+    const amtLP = (percents[i] * totalFarmed) / 100;
     availibleLP[i] = amtLP;
   }
+
   console.log(availibleLP);
+
+  return true;
 };
 
 sendTransaction('deposit', 1, 100);
@@ -145,10 +164,7 @@ sleep(1000).then(async () => {
     return sleep(3000).then(() => {
       sendTransaction('deposit', 1, 250);
       return sleep(5000).then(() => {
-        sendTransaction('deposit', 1, 0);
-        sendTransaction('deposit', 2, 0);
-        getPercents();
-        getAvailibleLP();
+        reInvest();
       });
     });
   });
