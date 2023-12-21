@@ -45,6 +45,12 @@ contract DynamicWeightedLP {
         }
     }
 
+    function getPrivateLP(address user) external view returns (uint256) {
+        UserInfo storage users = userInfo[user];
+        uint256 privateLP = (users.LPt * allLP) / allLPt;
+        return privateLP;
+    }
+
     function getUserInfo(address user) external view returns (UserInfo memory) {
         return userInfo[user];
     }
