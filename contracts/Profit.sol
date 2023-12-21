@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../libs/SafeMathInt.sol";
 import "../libs/SafeMathUint.sol";
 
-contract Profit {
+contract DynamicWeightedLP {
     using Address for address payable;
     using SafeMath for uint256;
     using SafeMathUint for uint256;
@@ -23,48 +23,29 @@ contract Profit {
 
     mapping(address => UserInfo) userInfo;
 
-        function deposit(uint256 LP) external {
-            uint256 t = block.timestamp;
-            uint256 LPt = LP * t;
-            userInfo[msg.sender] = UserInfo(t, LP, LPt);
-            allLP += LP;
-            allLPt += LPt;
-        }
+    function deposit(uint256 LP) external {
+        uint256 t = block.timestamp;
+        uint256 LPt = LP * t;
+        userInfo[msg.sender] = UserInfo(t, LP, LPt); // Initialize weight to 0
+        allLP += LP;
+        allLPt += LPt;
+    }
 
     function withdraw(uint256 LP) external {
         UserInfo storage user = userInfo[msg.sender];
         require(user.LP >= LP, "Insufficient LP amount");
 
         uint256 t = block.timestamp;
-        // uint256 curLPt = LP.mul(t).sub(user.LPt);
         user.LP -= LP;
         uint256 newUserLPt = user.LP.mul(user.t);
 
         user.LPt = newUserLPt.mul(t);
         if (LP >= user.LP) {
-            // _withdraw(user.LP)
-            delete user;
+            delete userInfo[msg.sender];
         }
-        // _withdraw(LP)
-
-        // allLP -= LP;
-        // allLPt -= LPt;
     }
 
     function getUserInfo(address user) external view returns (UserInfo memory) {
         return userInfo[user];
     }
 }
-
-    // function withdraw(uint256 amtLP) external {
-    //     uint256 t = block.timestamp;
-    //     uint256 amtLPT = amtLP.mul(t);
-    //     if (amtLP >= userInfo[msg.sender].amtLP) {
-    //         // _withdraw(userInfo[msg.sender].amtLP)
-    //         delete userInfo[msg.sender];
-    //     } else if (amtLP < userInfo[msg.sender].amtLP) {
-    //         // _withdraw(amtLP)
-    //     }
-    //     allAmtLP -= amtLP;
-    //     allAmtLPT -= amtLPT;
-    // }

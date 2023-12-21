@@ -1,6 +1,6 @@
 {
   "extends": "solhint:recommended",
-  "plugins": ["prettier"],
+  "plugins": ["forge", "prettier"],
   "rules": {
     "avoid-low-level-calls": "off",
     "avoid-tx-origin": "off",
