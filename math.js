@@ -1,141 +1,152 @@
 let totalAmountLP = 0;
 let totalAmountWeight = 0;
-let usersBalance = [{ bal: 100 }, { bal: 200 }, { bal: 100 }, { bal: 300 }, { bal: 100 }, { bal: 200 }, { bal: 500 }];
 let UserInfo = [
   {
+    user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0,
-    lastWeight: 0
+    weight: 0
   },
   {
+    user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0,
-    lastWeight: 0
+    weight: 0
   },
   {
+    user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0,
-    lastWeight: 0
+    weight: 0
   },
   {
+    user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0,
-    lastWeight: 0
+    weight: 0
   },
   {
+    user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0,
-    lastWeight: 0
+    weight: 0
   },
   {
+    user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0,
-    lastWeight: 0
+    weight: 0
   },
   {
+    user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0,
-    lastWeight: 0
-  },
-  {
-    amountLP: 0,
-    lastUpdateTime: 0,
-    weight: 0,
-    lastWeight: 0
+    weight: 0
   }
 ];
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-const deposit = (user, amountLP) => {
-  console.log('user:', user);
-  const lastUpdateTime = Number((new Date().getTime() / 1000).toFixed());
-  const weight = amountLP * (new Date().getTime() / 1000 - UserInfo[user].lastUpdateTime).toFixed();
-  if (UserInfo[user].amountLP <= 0) {
-    UserInfo[user] = { amountLP, lastUpdateTime, weight: 0, lastWeight: 0 };
-  } else {
-    UserInfo[user].amountLP += amountLP;
-    UserInfo[user].lastUpdateTime = lastUpdateTime;
-    console.log('deposit ~ totalAmountWeight:', totalAmountWeight);
-    UserInfo[user].lastWeight = UserInfo[user].weight;
-    totalAmountWeight -= UserInfo[user].lastWeight;
-    console.log('deposit ~ totalAmountWeight:', totalAmountWeight);
-    UserInfo[user].weight = (UserInfo[user].lastWeight + weight) / 2;
-    console.log('deposit ~ totalAmountWeight:', totalAmountWeight);
+const init = () => {
+  UserInfo[0] = {
+    user: 0,
+    amountLP: 0,
+    lastUpdateTime: Number((new Date().getTime() / 1000).toFixed()),
+    weight: 0
+  };
+};
+const updateInfo = (type, id, curAmountLP, amountLP) => {
+  const time = Number((new Date().getTime() / 1000).toFixed());
+  const dTime = time - UserInfo[id].lastUpdateTime;
+
+  const lastWeight = UserInfo[id].weight;
+  const curWeight = curAmountLP * dTime;
+
+  if (type == 'deposit') {
+    curAmountLP += amountLP;
+    totalAmountLP += amountLP;
   }
-  totalAmountWeight += UserInfo[user].weight;
-  totalAmountLP += amountLP;
-  console.log('deposit ~ UserInfo[user]:', UserInfo[user]);
-  console.log(
-    'deposit ~ allValue:',
-    {
-      totalAmountLP,
-      totalAmountWeight
-    },
-    '\n'
-  );
+  if (type == 'withdraw') {
+    curAmountLP -= amountLP;
+    totalAmountLP -= amountLP;
+  }
+
+  const weight = (lastWeight + curWeight) / 2;
+
+  UserInfo[id].user = id;
+  UserInfo[id].amountLP = curAmountLP;
+  UserInfo[id].lastUpdateTime = time;
+  UserInfo[id].weight = weight;
+
+  if (totalAmountWeight != 0) totalAmountWeight -= lastWeight;
+  totalAmountWeight += weight;
+
+  console.log(type + ' ~ after:', UserInfo[id]);
+  console.log(type + ' ~ global:', { totalAmountLP, totalAmountWeight });
+
+  return true;
 };
 
-const withdraw = (user, amountLP) => {
-  console.log('user:', user);
-  console.log('withdraw ~ UserInfo[user]:', UserInfo[user]);
-  if (!UserInfo[user] || UserInfo[user].amountLP <= 0) return console.error('You dont using this pool');
-  if (UserInfo[user].amountLP < amountLP) return console.error('Insufficient LP amount');
+const sendTransaction = (type, id, amountLP) => {
+  if (UserInfo.length == 0) init();
+  console.log('user:', id);
+  console.log(type + ' ~ before:', UserInfo[id]);
+  let curAmountLP = UserInfo[id].amountLP;
 
-  const lastUpdateTime = (new Date().getTime() / 1000).toFixed();
-  console.log('withdraw ~ lastUpdateTime:', lastUpdateTime);
+  if (type == 'deposit') {
+    if (curAmountLP <= 0) {
+      UserInfo[id] = {
+        user: id,
+        amountLP,
+        lastUpdateTime: Number((new Date().getTime() / 1000).toFixed()),
+        weight: 0
+      };
+    }
+  }
 
-  // UserInfo[user].lastWeight = UserInfo[user].weight;
+  if (type == 'withdraw') {
+    if (!UserInfo[id] || curAmountLP <= 0) return console.error('You dont using this pool');
+    if (curAmountLP < amountLP) return console.error('Insufficient LP amount');
+  }
 
-  const curOldAmountWeight =
-    UserInfo[user].amountLP * (new Date().getTime() / 1000 - UserInfo[user].lastUpdateTime).toFixed();
-
-  console.log('🚀 ~ file: math.js:97 ~ withdraw ~ curOldAmountWeight:', curOldAmountWeight);
-  // UserInfo[user].lastWeight = curOldAmountWeight;
-  UserInfo[user].amountLP -= amountLP;
-
-  const weight = UserInfo[user].amountLP * (new Date().getTime() / 1000 - UserInfo[user].lastUpdateTime).toFixed();
-  console.log('🚀 ~ file: math.js:101 ~ withdraw ~ weight:', weight);
-
-  UserInfo[user].weight = (curOldAmountWeight + weight) / 2;
-
-  console.log('🚀 ~ file: math.js:107 ~ withdraw ~ newWeight:', (curOldAmountWeight + weight) / 2);
-
-  totalAmountLP -= amountLP;
-  totalAmountWeight += UserInfo[user].weight;
-  // users.LP -= LP;
-  // uint256 oldUserLPt = users.LP.mul(t);
-  // users.LPt -= LP;
-
-  // users.LPt = (oldUserLPt + LP.mul(t)).div(2);
-  // users.lastUpdateTime = t;
-
-  // if (LP >= users.LP) {
-  //     delete userInfo[msg.sender];
-  // }
-  console.log('withdraw ~ UserInfo[user]:', UserInfo[user]);
-  console.log(
-    'withdraw ~ allValue:',
-    {
-      totalAmountLP,
-      totalAmountWeight
-    },
-    '\n'
-  );
+  if (updateInfo(type, id, curAmountLP, amountLP)) {
+    //tranfer
+    console.log('Done\n');
+    //emit
+  } else return console.error('hz tut potom uzhe dumat');
 };
 
-deposit(1, 100);
+const getPercents = () => {
+  let percents = [];
+  for (let i = 0; i < UserInfo.length; i++) {
+    // if (UserInfo[i].weight != 0) {
+    const percentUser = Number(((UserInfo[i].weight * 100) / totalAmountWeight).toFixed(2));
+    percents[i] = percentUser;
+    // }
+  }
+  console.log(percents);
+};
+
+const getAvailibleLP = () => {
+  const availibleLP = [];
+  for (let i = 0; i < UserInfo.length; i++) {
+    availibleLP[i];
+  }
+  console.log();
+};
+sendTransaction('deposit', 1, 100);
 sleep(1000).then(async () => {
-  deposit(2, 200);
+  sendTransaction('deposit', 2, 200);
   return sleep(1000).then(() => {
-    withdraw(1, 50);
+    sendTransaction('withdraw', 1, 50);
+    return sleep(1000).then(() => {
+      sendTransaction('deposit', 1, 150);
+      return sleep(1000).then(() => {
+        sendTransaction('deposit', 1, 0);
+        sendTransaction('deposit', 2, 0);
+        getPercents();
+      });
+    });
   });
 });
 
