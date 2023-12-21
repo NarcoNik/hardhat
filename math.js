@@ -56,6 +56,7 @@ const init = () => {
     weight: 0
   };
 };
+
 const updateInfo = (type, id, curAmountLP, amountLP) => {
   const time = Number((new Date().getTime() / 1000).toFixed());
   const dTime = time - UserInfo[id].lastUpdateTime;
@@ -135,14 +136,15 @@ const getAvailibleLP = () => {
   }
   console.log(availibleLP);
 };
+
 sendTransaction('deposit', 1, 100);
-sleep(10000).then(async () => {
+sleep(1000).then(async () => {
   sendTransaction('deposit', 2, 200);
-  return sleep(10000).then(() => {
+  return sleep(2000).then(() => {
     sendTransaction('withdraw', 1, 50);
-    return sleep(10000).then(() => {
-      sendTransaction('deposit', 1, 150);
-      return sleep(10000).then(() => {
+    return sleep(3000).then(() => {
+      sendTransaction('deposit', 1, 250);
+      return sleep(5000).then(() => {
         sendTransaction('deposit', 1, 0);
         sendTransaction('deposit', 2, 0);
         getPercents();
