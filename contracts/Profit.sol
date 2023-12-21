@@ -69,8 +69,8 @@ contract DynamicWeightedLP {
 
     function getPrivateNumber(address user) external view returns (uint256) {
         // Calculate the user's weight in the pool based on the time intervals
-        uint256 elapsedTime = block.timestamp.sub(users[user].lastUpdateTime);
-        uint256 userWeight = users[user].lpBalance.mul(elapsedTime);
+        uint256 elapsedTime = block.timestamp.sub(userInfo[user].lastUpdateTime);
+        uint256 userWeight = userInfo[user].LP.mul(elapsedTime);
 
         // Calculate the private number of LPs relative to the total number of LPs
         uint256 privateNumber = userWeight.mul(totalLPs).div(totalLPs);
