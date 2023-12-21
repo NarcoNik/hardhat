@@ -32,7 +32,7 @@ contract DynamicWeightedLP {
 
     function deposit(uint256 LP) external {
         UserInfo storage users = userInfo[msg.sender];
-        uint256 memory t = block.timestamp;
+        uint256 t = block.timestamp;
         uint256 LPt = LP * t;
         if (users.LP <= 0) {
             userInfo[msg.sender] = UserInfo(t, LP, LPt); // Initialize weight to 0
