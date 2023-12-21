@@ -136,16 +136,17 @@ const getAvailibleLP = () => {
   console.log(availibleLP);
 };
 sendTransaction('deposit', 1, 100);
-sleep(1000).then(async () => {
+sleep(10000).then(async () => {
   sendTransaction('deposit', 2, 200);
-  return sleep(1000).then(() => {
+  return sleep(10000).then(() => {
     sendTransaction('withdraw', 1, 50);
-    return sleep(1000).then(() => {
+    return sleep(10000).then(() => {
       sendTransaction('deposit', 1, 150);
-      return sleep(1000).then(() => {
+      return sleep(10000).then(() => {
         sendTransaction('deposit', 1, 0);
         sendTransaction('deposit', 2, 0);
         getPercents();
+        getAvailibleLP();
       });
     });
   });
