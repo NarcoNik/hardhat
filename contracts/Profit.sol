@@ -48,7 +48,7 @@ contract DynamicWeightedLP {
         UserInfo storage users = userInfo[msg.sender];
         require(users.LP >= LP, "Insufficient LP amount");
 
-        uint256 memory t = block.timestamp;
+        uint256 t = block.timestamp;
         users.LP -= LP;
         uint256 oldUserLPt = users.LP.mul(t);
         users.LPt -= LP;
