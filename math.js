@@ -1,5 +1,6 @@
 let totalAmountLP = 0;
 let totalAmountWeight = 0;
+let percents = [];
 let UserInfo = [
   {
     user: 0,
@@ -117,7 +118,6 @@ const sendTransaction = (type, id, amountLP) => {
 };
 
 const getPercents = () => {
-  let percents = [];
   for (let i = 0; i < UserInfo.length; i++) {
     // if (UserInfo[i].weight != 0) {
     const percentUser = Number(((UserInfo[i].weight * 100) / totalAmountWeight).toFixed(2));
@@ -130,9 +130,10 @@ const getPercents = () => {
 const getAvailibleLP = () => {
   const availibleLP = [];
   for (let i = 0; i < UserInfo.length; i++) {
-    availibleLP[i];
+    const amtLP = (percents[i] * totalAmountLP) / 100;
+    availibleLP[i] = amtLP;
   }
-  console.log();
+  console.log(availibleLP);
 };
 sendTransaction('deposit', 1, 100);
 sleep(1000).then(async () => {
