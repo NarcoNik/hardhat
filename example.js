@@ -11,43 +11,50 @@ let UserInfo = [
     user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0
+    weight: 0,
+    percentsUser: [0]
   },
   {
     user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0
+    weight: 0,
+    percentsUser: [0]
   },
   {
     user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0
+    weight: 0,
+    percentsUser: [0]
   },
   {
     user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0
+    weight: 0,
+    percentsUser: [0]
   },
   {
     user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0
+    weight: 0,
+    percentsUser: [0]
   },
   {
     user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0
+    weight: 0,
+    percentsUser: [0]
   },
   {
     user: 0,
     amountLP: 0,
     lastUpdateTime: 0,
-    weight: 0
+    weight: 0,
+    percentsUser: [0]
   }
 ];
 
@@ -60,11 +67,12 @@ const updateInfo = (type, id, curAmountLP, amountLP) => {
     startTime = time;
     started = true;
   }
+
   const dTime = time - UserInfo[id].lastUpdateTime;
 
   const lastWeight = UserInfo[id].weight;
   const curWeight = curAmountLP * dTime;
-  const weight = (lastWeight + curWeight) / 2; // Calculate the average weight
+  const weight = lastWeight + curWeight;
 
   if (type == 'deposit') {
     curAmountLP += amountLP;
@@ -79,13 +87,12 @@ const updateInfo = (type, id, curAmountLP, amountLP) => {
   UserInfo[id].amountLP = curAmountLP;
   UserInfo[id].lastUpdateTime = time;
   UserInfo[id].weight = weight;
+  UserInfo[id].percentsUser.push(isNaN(weight) ? 0 : weight);
 
-  if (totalAmountWeight != 0) totalAmountWeight -= lastWeight;
-  totalAmountWeight += weight;
+  totalAmountWeight = UserInfo.reduce((acc, user) => acc + user.weight, 0);
 
   console.log(type + ' ~ after:', UserInfo[id]);
   console.log(type + ' ~ global:', { totalAmountLP, totalAmountWeight });
-
   return true;
 };
 
@@ -100,7 +107,8 @@ const sendTransaction = (type, id, amountLP) => {
         user: id,
         amountLP,
         lastUpdateTime: Number((new Date().getTime() / 1000).toFixed()),
-        weight: 0
+        weight: 0,
+        percentsUser: []
       };
     }
   }
@@ -116,18 +124,18 @@ const sendTransaction = (type, id, amountLP) => {
   } else return console.error('hz tut potom uzhe dumat');
 };
 
-// const getMidWeight = num => {
-//   console.log(num);
-//   num = num.filter(elem => elem != 0);
-//   let sum;
-//   if (num.length != 0) {
-//     sum = num.reduce((a, b) => a + b, 0);
-//   } else sum = 0;
-//   const midWeight = sum / num.length;
+const getMidWeight = num => {
+  console.log(num);
+  num = num.filter(elem => elem != 0);
+  let sum;
+  if (num.length != 0) {
+    sum = num.reduce((a, b) => a + b, 0);
+  } else sum = 0;
+  const midWeight = sum;
 
-//   console.log({ sum, midWeight, totalAmountWeight });
-//   return { midWeight };
-// };
+  console.log({ sum, midWeight, totalAmountWeight });
+  return { midWeight };
+};
 
 const getPercents = () => {
   for (let i = 0; i < UserInfo.length; i++) {
@@ -136,7 +144,8 @@ const getPercents = () => {
     }
   }
   for (let a = 0; a < UserInfo.length; a++) {
-    percents[a] = UserInfo[a].weight / totalAmountWeight;
+    const { midWeight } = getMidWeight(UserInfo[a].percentsUser);
+    percents[a] = midWeight / totalAmountWeight;
   }
   console.log(percents);
 };
@@ -165,20 +174,6 @@ const reInvest = () => {
   return true;
 };
 
-// sendTransaction('deposit', 1, 100);
-// sleep(1000).then(async () => {
-//   sendTransaction('deposit', 2, 200);
-//   return sleep(2000).then(() => {
-//     sendTransaction('withdraw', 1, 50);
-//     return sleep(3000).then(() => {
-//       sendTransaction('deposit', 1, 250);
-//       return sleep(5000).then(() => {
-//         reInvest();
-//       });
-//     });
-//   });
-// });
-
 sendTransaction('deposit', 1, 10);
 sendTransaction('deposit', 2, 10);
 sleep(1000).then(async () => {
@@ -187,25 +182,3 @@ sleep(1000).then(async () => {
     reInvest();
   });
 });
-
-// function calculatePrivateLPS(totalLPS, users) {
-//   const privateLPS = [];
-
-//   // Calculate the total balance across all users
-//   const totalBalance = users.reduce((acc, user) => {
-//     return acc + user.balance1 + user.balance2 + user.balance3 + user.balance4 + user.balance5;
-//   }, 0);
-
-//   // Calculate the private LPS for each user
-//   users.forEach(user => {
-//     const userBalance = user.balance1 + user.balance2 + user.balance3 + user.balance4 + user.balance5;
-//     const userWeight = userBalance / totalBalance;
-//     const userPrivateLPS = userWeight * totalLPS;
-//     privateLPS.push(userPrivateLPS);
-//   });
-
-//   return privateLPS;
-// }
-
-// const privateLPS = calculatePrivateLPS(totalLPS, users);
-// console.log(privateLPS);
