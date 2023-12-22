@@ -53,6 +53,14 @@ let UserInfo = [
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+/**
+ * Updates the user information based on the type of transaction (deposit or withdraw).
+ * @param {string} type - The type of transaction ('deposit' or 'withdraw').
+ * @param {number} id - The user ID.
+ * @param {number} curAmountLP - The current amount of LP (Liquidity Provider) tokens.
+ * @param {number} amountLP - The amount of LP tokens involved in the transaction.
+ * @returns {boolean} - Returns true if the update is successful.
+ */
 const updateInfo = (type, id, curAmountLP, amountLP) => {
   const time = Number((new Date().getTime() / 1000).toFixed());
 
@@ -64,7 +72,7 @@ const updateInfo = (type, id, curAmountLP, amountLP) => {
 
   const lastWeight = UserInfo[id].weight;
   const curWeight = curAmountLP * dTime;
-  const weight = (lastWeight + curWeight) / 2; // Calculate the average weight
+  const weight = lastWeight + curWeight; // Calculate the average weight
   if (type == 'deposit') {
     curAmountLP += amountLP;
     totalAmountLP += amountLP;
@@ -79,18 +87,24 @@ const updateInfo = (type, id, curAmountLP, amountLP) => {
   UserInfo[id].lastUpdateTime = time;
   UserInfo[id].weight = weight;
 
-  // if (totalAmountWeight != 0) totalAmountWeight -= lastWeight;
+  if (totalAmountWeight != 0) totalAmountWeight -= lastWeight;
   totalAmountWeight += weight;
 
-  console.log(type + ' ~ after:', UserInfo[id]);
-  console.log(type + ' ~ global:', { totalAmountLP, totalAmountWeight });
+  console.log('after:', UserInfo[id]);
+  console.log('global:', { totalAmountLP, totalAmountWeight });
 
   return true;
 };
 
+/**
+ * Sends a transaction for a user.
+ * @param {string} type - The type of transaction ('deposit' or 'withdraw').
+ * @param {number} id - The user ID.
+ * @param {number} amountLP - The amount of LP tokens involved in the transaction.
+ */
 const sendTransaction = (type, id, amountLP) => {
-  console.log('user:', id);
-  console.log(type + ' ~ before:', UserInfo[id]);
+  console.log(type + ' user:', id);
+  console.log('before:', UserInfo[id]);
   let curAmountLP = UserInfo[id].amountLP;
 
   if (type == 'deposit') {
@@ -128,6 +142,9 @@ const sendTransaction = (type, id, amountLP) => {
 //   return { midWeight };
 // };
 
+/**
+ * Calculates the percentages of each user's weight based on the total weight.
+ */
 const getPercents = () => {
   for (let i = 0; i < UserInfo.length; i++) {
     if (UserInfo[i].amountLP > 0) {
@@ -137,17 +154,23 @@ const getPercents = () => {
   for (let a = 0; a < UserInfo.length; a++) {
     percents[a] = UserInfo[a].weight / totalAmountWeight;
   }
-  console.log(percents);
+  console.log('getPercents:\n', percents);
 };
-
+/**
+ * Calculates the total farmed amount based on the time elapsed since the start time.
+ * @returns {number} - The total farmed amount.
+ */
 const _getTotalFarmed = () => {
   const time = Number((new Date().getTime() / 1000).toFixed());
   const dTime = time - startTime;
   totalFarmed = farmedByDay * dTime;
-  console.log(totalFarmed);
+  console.log('_getTotalFarmed:\n', totalFarmed);
   return totalFarmed;
 };
-
+/**
+ * Reinvests the available LP tokens based on the percentages and total farmed amount.
+ * @returns {boolean} - Returns true if the reinvestment is successful.
+ */
 const reInvest = () => {
   reinvestTime = Number((new Date().getTime() / 1000).toFixed());
   getPercents();
@@ -158,9 +181,7 @@ const reInvest = () => {
     const amtLP = percents[i] * totalFarmed;
     availibleLP[i] = amtLP;
   }
-
-  console.log(availibleLP);
-
+  console.log('reinvest:\n', availibleLP);
   return true;
 };
 
@@ -186,25 +207,3 @@ sleep(1000).then(async () => {
     reInvest();
   });
 });
-
-// function calculatePrivateLPS(totalLPS, users) {
-//   const privateLPS = [];
-
-//   // Calculate the total balance across all users
-//   const totalBalance = users.reduce((acc, user) => {
-//     return acc + user.balance1 + user.balance2 + user.balance3 + user.balance4 + user.balance5;
-//   }, 0);
-
-//   // Calculate the private LPS for each user
-//   users.forEach(user => {
-//     const userBalance = user.balance1 + user.balance2 + user.balance3 + user.balance4 + user.balance5;
-//     const userWeight = userBalance / totalBalance;
-//     const userPrivateLPS = userWeight * totalLPS;
-//     privateLPS.push(userPrivateLPS);
-//   });
-
-//   return privateLPS;
-// }
-
-// const privateLPS = calculatePrivateLPS(totalLPS, users);
-// console.log(privateLPS);
