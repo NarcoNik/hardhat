@@ -64,8 +64,7 @@ const updateInfo = (type, id, curAmountLP, amountLP) => {
 
   const lastWeight = UserInfo[id].weight;
   const curWeight = curAmountLP * dTime;
-  // const weight = (lastWeight + curWeight) / 2; // Calculate the average weight
-  const weight = curWeight / totalAmountWeight;
+  const weight = (lastWeight + curWeight) / 2; // Calculate the average weight
   if (type == 'deposit') {
     curAmountLP += amountLP;
     totalAmountLP += amountLP;
