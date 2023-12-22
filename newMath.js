@@ -79,7 +79,7 @@ const updateInfo = (type, id, curAmountLP, amountLP) => {
   UserInfo[id].lastUpdateTime = time;
   UserInfo[id].weight = weight;
 
-  if (totalAmountWeight != 0) totalAmountWeight -= lastWeight;
+  // if (totalAmountWeight != 0) totalAmountWeight -= lastWeight;
   totalAmountWeight += weight;
 
   console.log(type + ' ~ after:', UserInfo[id]);
