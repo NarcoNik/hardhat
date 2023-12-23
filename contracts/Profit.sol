@@ -28,55 +28,54 @@ contract DynamicWeightedLP {
     mapping(address => UserInfo) userInfo;
 
     uint256 private totalLPs;
-    uint256 private totalLPts;
 
     function deposit(uint256 LP) external {
         UserInfo storage users = userInfo[msg.sender];
         uint256 t = block.timestamp;
-        uint256 LPt = LP * t;
-        if (users.LP <= 0) {
-            userInfo[msg.sender] = UserInfo(t, LP, LPt); // Initialize weight to 0
-        }
+
         users.LP += LP;
-        users.LPt += LPt;
         users.lastUpdateTime = t;
         totalLPs += LP;
-        totalLPts += LPt;
     }
 
     function withdraw(uint256 LP) external {
         UserInfo storage users = userInfo[msg.sender];
+        require(LP > 0, "Amount must be greater than 0");
         require(users.LP >= LP, "Insufficient LP amount");
 
-        uint256 t = block.timestamp;
         users.LP -= LP;
-        uint256 oldUserLPt = users.LP.mul(t);
-        users.LPt -= LP;
-
-        users.LPt = (oldUserLPt + LP.mul(t)).div(2);
-        users.lastUpdateTime = t;
+        users.lastUpdateTime = block.timestamp;
+        totalLPs -= LP;
 
         if (LP >= users.LP) {
             delete userInfo[msg.sender];
         }
     }
 
-    function getPrivateLP(address user) external view returns (uint256) {
-        UserInfo storage users = userInfo[user];
-        uint256 privateLP = (users.LPt * totalLPs) / totalLPts;
-        return privateLP;
+    function calculateUserShare(address userAddress) external view returns (uint256) {
+        UserInfo storage user = userInfo[userAddress];
+        uint256 elapsedTime = block.timestamp - user.lastUpdateTime;
+        uint256 userWeight = user.LP * elapsedTime;
+        uint256 totalWeight = totalLPs * elapsedTime;
+
+        return (userWeight * 100) / totalWeight; // Возвращаем долю пользователя в процентах
     }
+    // function getPrivateLP(address user) external view returns (uint256) {
+    //     UserInfo storage users = userInfo[user];
+    //     uint256 privateLP = (users.LPt * totalLPs) / totalLPts;
+    //     return privateLP;
+    // }
 
-    function getPrivateNumber(address user) external view returns (uint256) {
-        // Calculate the user's weight in the pool based on the time intervals
-        uint256 elapsedTime = block.timestamp.sub(userInfo[user].lastUpdateTime);
-        uint256 userWeight = userInfo[user].LP.mul(elapsedTime);
+    // function getPrivateNumber(address user) external view returns (uint256) {
+    //     // Calculate the user's weight in the pool based on the time intervals
+    //     uint256 elapsedTime = block.timestamp.sub(userInfo[user].lastUpdateTime);
+    //     uint256 userWeight = userInfo[user].LP.mul(elapsedTime);
 
-        // Calculate the private number of LPs relative to the total number of LPs
-        uint256 privateNumber = userWeight.mul(totalLPs).div(totalLPs);
+    //     // Calculate the private number of LPs relative to the total number of LPs
+    //     uint256 privateNumber = userWeight.mul(totalLPs).div(totalLPs);
 
-        return privateNumber;
-    }
+    //     return privateNumber;
+    // }
 
     function getUserInfo(address user) external view returns (UserInfo memory) {
         return userInfo[user];
