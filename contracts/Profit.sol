@@ -1,23 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
-import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "../libs/SafeMathInt.sol";
-import "../libs/SafeMathUint.sol";
-
-pragma solidity ^0.8.22;
-
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "../libs/SafeMathInt.sol";
 import "../libs/SafeMathUint.sol";
 
 contract DynamicWeightedLP {
-    using Address for address payable;
     using SafeMath for uint256;
     using SafeMathUint for uint256;
-    using SafeMathInt for int256;
 
     struct UserInfo {
         uint256 lastUpdateTime;
