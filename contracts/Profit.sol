@@ -9,37 +9,46 @@ contract DynamicWeightedLP {
     using SafeMathUint for uint256;
 
     struct UserInfo {
+        address user;
         uint256 amountLP;
         uint256 weight;
         uint256 lastTotalWeight;
     }
 
-    mapping(address => UserInfo) public userInfo;
+    struct User {
+        uint256 index;
+        mapping(uint256 => UserInfo) userInfo;
+    }
 
-    address[] public allUsers;
+    mapping(address => User) user;
+
     bool private started;
 
     uint256[] private percents;
+    uint256 private usersValue;
     uint256 private startTime;
     uint256 private totalLP;
     uint256 private totalWeight;
-    uint256 private totalWeightForAll;
     uint256 private lastUpdateTime;
 
     event SendTransaction(uint256 typeF, UserInfo userInfo);
     event UpdatePercents(uint256[] percents);
 
     function sendTransaction(uint256 typeF, uint256 amountLP) public {
-        UserInfo storage users = userInfo[msg.sender];
+        User storage users = user[msg.sender];
+        users.index = usersValue;
+        UserInfo storage usersInfo = users.userInfo[users.index];
+        usersValue++;
+
         uint256 time = block.timestamp;
-        uint256 curAmountLP = users.amountLP;
+        uint256 curAmountLP = usersInfo.amountLP;
 
         if (typeF == 0) {
             if (curAmountLP <= 0) {
-                users.amountLP = amountLP;
-                users.weight = 0;
-                users.lastTotalWeight = 0;
-                allUsers.push(msg.sender);
+                usersInfo.user = msg.sender;
+                usersInfo.amountLP = amountLP;
+                usersInfo.weight = 0;
+                usersInfo.lastTotalWeight = 0;
             }
         }
 
@@ -50,18 +59,20 @@ contract DynamicWeightedLP {
         if (_updateInfo(msg.sender, typeF, curAmountLP, amountLP, time)) {
             //tranfer
             // console.log('Done\n');
-            emit SendTransaction(typeF, userInfo[msg.sender]);
+            emit SendTransaction(typeF, usersInfo);
         } else {
             revert("hz tut potom uzhe dumat");
         }
     }
 
-    function _updateInfo(address user, uint256 typeF, uint256 curAmountLP, uint256 amountLP, uint256 time)
+    function _updateInfo(address userAddr, uint256 typeF, uint256 curAmountLP, uint256 amountLP, uint256 time)
         internal
         returns (bool)
     {
         // typeF 0-deposit, 1-withdraw, 2-reinvest
-        UserInfo storage users = userInfo[user];
+        User storage users = user[userAddr];
+        UserInfo storage usersInfo = users.userInfo[users.index];
+
         if (!started) {
             startTime = time;
             started = true;
@@ -69,9 +80,7 @@ contract DynamicWeightedLP {
         uint256 dTime = time - lastUpdateTime;
         if (dTime != 0 && totalLP != 0) totalWeight += dTime / totalLP;
 
-        totalWeightForAll -= users.weight;
-        uint256 weight = users.weight + curAmountLP * (totalWeight - users.lastTotalWeight);
-        totalWeightForAll += weight;
+        uint256 weight = usersInfo.weight + curAmountLP * (totalWeight - usersInfo.lastTotalWeight);
 
         if (typeF == 0) {
             curAmountLP += amountLP;
@@ -82,9 +91,9 @@ contract DynamicWeightedLP {
             totalLP -= amountLP;
         }
 
-        users.amountLP = curAmountLP;
-        users.weight = weight;
-        users.lastTotalWeight = totalWeight;
+        usersInfo.amountLP = curAmountLP;
+        usersInfo.weight = weight;
+        usersInfo.lastTotalWeight = totalWeight;
 
         lastUpdateTime = time;
 
@@ -92,27 +101,30 @@ contract DynamicWeightedLP {
     }
 
     function updatePercents() public {
-        for (uint256 i = 0; i < allUsers.length; i++) {
-            if (userInfo[allUsers[i]].amountLP > 0) {
-                _updateInfo(allUsers[i], 2, userInfo[allUsers[i]].amountLP, 0, block.timestamp);
-            }
+        for (uint256 i = 0; i < usersValue; i++) {
+            percents[i] = _updatePercentForOneUser(UserInfo[i].user);
         }
-        uint256 j = 0;
-        while (j < allUsers.length) {
-            percents[j] = userInfo[allUsers[j]].weight / totalWeightForAll;
-            j++;
-        }
-        // for (uint256 a = 0; a < allUsers.length; a++) {
-        //     percents[a] = userInfo[allUsers[a]].weight / totalWeightForAll;
-        // }
         emit UpdatePercents(percents);
+    }
+
+    function _updatePercentForOneUser(address userAddr) internal returns (uint256 percent) {
+        User storage users = user[userAddr];
+        UserInfo storage usersInfo = users.userInfo[users.index];
+        uint256 time = block.timestamp;
+        uint256 dTimeAll = time - startTime;
+        uint256 dTime = time - lastUpdateTime;
+        if (dTime != 0 && totalLP != 0) totalWeight += dTime / totalLP;
+
+        percent = (usersInfo.weight + usersInfo.amountLP * (totalWeight - usersInfo.lastTotalWeight)) / dTimeAll;
+        return percent;
     }
 
     function getPercents() external view returns (uint256[] memory) {
         return percents;
     }
 
-    function getUserInfo(address user) external view returns (UserInfo memory) {
-        return userInfo[user];
+    function getUserInfo(address userAddr) external view returns (UserInfo memory) {
+        User storage users = user[userAddr];
+        return users.userInfo[users.index];
     }
 }

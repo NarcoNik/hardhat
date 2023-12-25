@@ -1,6 +1,5 @@
 let totalLP = 0;
 let totalWeight = 0;
-let totalWeightForAll = 0;
 let percents = [];
 let farmedByDay = 100;
 let totalFarmed = 0;
@@ -61,9 +60,8 @@ const updateInfo = (type, id, curAmountLP, amountLP, time) => {
   }
   const dTime = time - lastUpdateTime;
   if (dTime != 0 && totalLP != 0) totalWeight += dTime / totalLP;
-  totalWeightForAll -= UserInfo[id].weight;
+
   const weight = UserInfo[id].weight + curAmountLP * (totalWeight - UserInfo[id].lastTotalWeight);
-  totalWeightForAll += weight;
 
   if (type == 'deposit') {
     curAmountLP += amountLP;
@@ -74,7 +72,6 @@ const updateInfo = (type, id, curAmountLP, amountLP, time) => {
     totalLP -= amountLP;
   }
 
-  UserInfo[id].user = id;
   UserInfo[id].amountLP = curAmountLP;
   UserInfo[id].weight = weight;
   UserInfo[id].lastTotalWeight = totalWeight;
@@ -115,14 +112,15 @@ const sendTransaction = (type, id, amountLP) => {
 };
 
 const getPercents = () => {
-  for (let i = 0; i < UserInfo.length; i++) {
-    if (UserInfo[i].amountLP > 0) {
-      sendTransaction('reinvest', i, 0);
-    }
-  }
+  const time = Number((new Date().getTime() / 1000).toFixed());
+  const dTimeAll = time - startTime;
+  const dTime = time - lastUpdateTime;
+  if (dTime != 0 && totalLP != 0) totalWeight += dTime / totalLP;
 
   for (let a = 0; a < UserInfo.length; a++) {
-    percents[a] = UserInfo[a].weight / totalWeightForAll;
+    percents[a] =
+      (UserInfo[a].weight + UserInfo[a].amountLP * (totalWeight - UserInfo[a].lastTotalWeight)) /
+      dTimeAll;
   }
   console.log('getPercents:\n', percents);
 };
