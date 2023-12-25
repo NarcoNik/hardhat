@@ -9,62 +9,103 @@ contract DynamicWeightedLP {
     using SafeMathUint for uint256;
 
     struct UserInfo {
-        uint256 lastUpdateTime;
-        uint256 LP;
-        uint256 LPt;
+        uint256 amountLP;
+        uint256 weight;
+        uint256 lastTotalWeight;
     }
 
-    mapping(address => UserInfo) userInfo;
+    mapping(address => UserInfo) public userInfo;
 
-    uint256 private totalLPs;
+    address[] public allUsers;
+    bool private started;
+    uint256[] private percents;
+    uint256 private startTime;
+    uint256 private totalLP;
+    uint256 private totalWeight;
+    uint256 private totalWeightForAll;
+    uint256 private lastUpdateTime;
 
-    function deposit(uint256 LP) external {
+    function sendTransaction(uint256 typeF, uint256 amountLP) public {
         UserInfo storage users = userInfo[msg.sender];
-        uint256 t = block.timestamp;
+        uint256 time = block.timestamp;
+        uint256 curAmountLP = users.amountLP;
 
-        users.LP += LP;
-        users.lastUpdateTime = t;
-        totalLPs += LP;
-    }
+        if (typeF == 0) {
+            if (curAmountLP <= 0) {
+                users.amountLP = amountLP;
+                users.weight = 0;
+                users.lastTotalWeight = 0;
+                allUsers.push(msg.sender);
+            }
+        }
 
-    function withdraw(uint256 LP) external {
-        UserInfo storage users = userInfo[msg.sender];
-        require(LP > 0, "Amount must be greater than 0");
-        require(users.LP >= LP, "Insufficient LP amount");
-
-        users.LP -= LP;
-        users.lastUpdateTime = block.timestamp;
-        totalLPs -= LP;
-
-        if (LP >= users.LP) {
-            delete userInfo[msg.sender];
+        if (typeF == 1) {
+            if (!allUsers.includes(msg.sender) || curAmountLP <= 0) revert("You dont using this pool");
+            if (curAmountLP < amountLP) revert("Insufficient LP amount");
+        }
+        if (_updateInfo(msg.sender, typeF, curAmountLP, amountLP, time)) {
+            //tranfer
+            // console.log('Done\n');
+            //emit
+        } else {
+            revert("hz tut potom uzhe dumat");
         }
     }
 
-    function calculateUserShare(address userAddress) external view returns (uint256) {
-        UserInfo storage user = userInfo[userAddress];
-        uint256 elapsedTime = block.timestamp - user.lastUpdateTime;
-        uint256 userWeight = user.LP * elapsedTime;
-        uint256 totalWeight = totalLPs * elapsedTime;
+    function _updateInfo(address user, uint256 typeF, uint256 curAmountLP, uint256 amountLP, uint256 time)
+        internal
+        returns (bool)
+    {
+        // typeF 0-deposit, 1-withdraw, 2-reinvest
+        UserInfo storage users = userInfo[user];
+        if (!started) {
+            startTime = time;
+            started = true;
+        }
+        uint256 dTime = time - lastUpdateTime;
+        if (dTime != 0 && totalLP != 0) totalWeight += dTime / totalLP;
 
-        return (userWeight * 100) / totalWeight; // Возвращаем долю пользователя в процентах
+        totalWeightForAll -= users.weight;
+        uint256 weight = users.weight + curAmountLP * (totalWeight - users.lastTotalWeight);
+        totalWeightForAll += weight;
+
+        if (typeF == 0) {
+            curAmountLP += amountLP;
+            totalLP += amountLP;
+        }
+        if (typeF == 1) {
+            curAmountLP -= amountLP;
+            totalLP -= amountLP;
+        }
+
+        users.amountLP = curAmountLP;
+        users.weight = weight;
+        users.lastTotalWeight = totalWeight;
+
+        lastUpdateTime = time;
+
+        return true;
     }
-    // function getPrivateLP(address user) external view returns (uint256) {
-    //     UserInfo storage users = userInfo[user];
-    //     uint256 privateLP = (users.LPt * totalLPs) / totalLPts;
-    //     return privateLP;
-    // }
 
-    // function getPrivateNumber(address user) external view returns (uint256) {
-    //     // Calculate the user's weight in the pool based on the time intervals
-    //     uint256 elapsedTime = block.timestamp.sub(userInfo[user].lastUpdateTime);
-    //     uint256 userWeight = userInfo[user].LP.mul(elapsedTime);
+    function updatePercents() public {
+        for (uint256 i = 0; i < allUsers.length; i++) {
+            if (userInfo[allUsers[i]].amountLP > 0) {
+                _updateInfo(allUsers[i], 2, userInfo[allUsers[i]].amountLP, 0, block.timestamp);
+            }
+        }
+        uint256 j = 0;
+        while (j < allUsers.length) {
+            percents[j] = userInfo[allUsers[j]].weight / totalWeightForAll;
+            j++;
+        }
+        // for (uint256 a = 0; a < allUsers.length; a++) {
+        //     percents[a] = userInfo[allUsers[a]].weight / totalWeightForAll;
+        // }
+    }
 
-    //     // Calculate the private number of LPs relative to the total number of LPs
-    //     uint256 privateNumber = userWeight.mul(totalLPs).div(totalLPs);
-
-    //     return privateNumber;
-    // }
+    function getPercents() external view returns (uint256[] memory) {
+        return percents;
+    }
 
     function getUserInfo(address user) external view returns (UserInfo memory) {
         return userInfo[user];
