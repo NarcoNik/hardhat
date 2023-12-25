@@ -86,25 +86,18 @@ contract DynamicWeightedLP {
     }
 
     function updatePercents() external {
-        for (uint256 i = 0; i < usersAddr.length; i++) {
-            address user = usersAddr[i];
-            uint256 percent = _getPercentForUser(user);
-            percents[i] = percent;
-        }
-        emit UpdatePercents(percents);
-    }
-
-    function _getPercentForUser(address user) internal view returns (uint256) {
         uint256 time = block.timestamp;
         uint256 dTimeAll = time - startTime;
         uint256 dTime = time - lastUpdateTime;
         uint256 totalWeights = totalWeight.add(dTime.div(totalLP));
 
-        uint256 percent = userInfo[user].weight.add(
-            userInfo[user].amountLP.mul(totalWeights.sub(userInfo[user].lastTotalWeight))
-        ).div(dTimeAll);
-
-        return percent;
+        for (uint256 i = 0; i < usersAddr.length; i++) {
+            address user = usersAddr[i];
+            percents[i] = userInfo[user].weight.add(
+                userInfo[user].amountLP.mul(totalWeights.sub(userInfo[user].lastTotalWeight))
+            ).div(dTimeAll);
+        }
+        emit UpdatePercents(percents);
     }
 
     function getPercentForUser(address user) external view returns (uint256) {

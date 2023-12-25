@@ -115,11 +115,11 @@ const getPercents = () => {
   const time = Number((new Date().getTime() / 1000).toFixed());
   const dTimeAll = time - startTime;
   const dTime = time - lastUpdateTime;
-  if (dTime != 0 && totalLP != 0) totalWeight += dTime / totalLP;
+  const totalWeights = totalWeight + dTime / totalLP;
 
   for (let a = 0; a < UserInfo.length; a++) {
     percents[a] =
-      (UserInfo[a].weight + UserInfo[a].amountLP * (totalWeight - UserInfo[a].lastTotalWeight)) /
+      (UserInfo[a].weight + UserInfo[a].amountLP * (totalWeights - UserInfo[a].lastTotalWeight)) /
       dTimeAll;
   }
   console.log('getPercents:\n', percents);
