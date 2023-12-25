@@ -112,14 +112,21 @@ const sendTransaction = (type, id, amountLP) => {
 };
 
 const getPercents = () => {
+  for (let a = 0; a < UserInfo.length; a++) {
+    percents[a] = _getPercents(UserInfo[a]);
+  }
+  console.log('getPercents:\n', percents);
+};
+
+const _getPercents = usersInfo => {
   const time = Number((new Date().getTime() / 1000).toFixed());
   const dTimeAll = time - startTime;
   const dTime = time - lastUpdateTime;
   if (dTime != 0 && totalLP != 0) totalWeight += dTime / totalLP;
 
-  for (let a = 0; a < UserInfo.length; a++) {
+  for (let a = 0; a < usersInfo.length; a++) {
     percents[a] =
-      (UserInfo[a].weight + UserInfo[a].amountLP * (totalWeight - UserInfo[a].lastTotalWeight)) /
+      (usersInfo[a].weight + usersInfo[a].amountLP * (totalWeight - usersInfo[a].lastTotalWeight)) /
       dTimeAll;
   }
   console.log('getPercents:\n', percents);

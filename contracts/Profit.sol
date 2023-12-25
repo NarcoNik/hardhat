@@ -42,6 +42,7 @@ contract DynamicWeightedLP {
                 usersInfo.amountLP = amountLP;
                 usersInfo.weight = 0;
                 usersInfo.lastTotalWeight = 0;
+                usersAddr.push(msg.sender);
             }
         }
 
