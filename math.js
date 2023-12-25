@@ -60,13 +60,9 @@ const updateInfo = (type, id, curAmountLP, amountLP, time) => {
     started = true;
   }
   const dTime = time - lastUpdateTime;
-  console.log({ dTime, totalLP });
   if (dTime != 0 && totalLP != 0) totalWeight += dTime / totalLP;
 
-  const weight = UserInfo[id].weight + curAmountLP * (totalWeight - UserInfo[id].lastTotalWeight); // Calculate the average weight
-  console.log({ uW: UserInfo[id].weight, weight });
-  // if (totalWeight != 0) totalWeight -= lastWeight;
-  // totalWeight += weight;
+  const weight = UserInfo[id].weight + curAmountLP * (totalWeight - UserInfo[id].lastTotalWeight);
 
   if (type == 'deposit') {
     curAmountLP += amountLP;
@@ -83,7 +79,7 @@ const updateInfo = (type, id, curAmountLP, amountLP, time) => {
   UserInfo[id].lastTotalWeight = totalWeight;
 
   lastUpdateTime = time;
-  // console.log('after:', UserInfo[id]);
+  console.log('after:', UserInfo[id]);
   console.log('global:', { totalLP, totalWeight });
 
   return true;
@@ -91,7 +87,7 @@ const updateInfo = (type, id, curAmountLP, amountLP, time) => {
 
 const sendTransaction = (type, id, amountLP) => {
   console.log(type + ' user:', id);
-  // console.log('before:', UserInfo[id]);
+  console.log('before:', UserInfo[id]);
   const time = Number((new Date().getTime() / 1000).toFixed());
   let curAmountLP = UserInfo[id].amountLP;
 
