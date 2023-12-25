@@ -3,6 +3,7 @@ pragma solidity ^0.8.22;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../libs/SafeMathUint.sol";
+import "hardhat/console.sol";
 
 contract DynamicWeightedLP {
     using SafeMath for uint256;
@@ -86,21 +87,17 @@ contract DynamicWeightedLP {
     }
 
     function updatePercents() external {
-        uint256 time = block.timestamp;
-        uint256 dTimeAll = time - startTime;
-        uint256 dTime = time - lastUpdateTime;
-        uint256 totalWeights = totalWeight.add(dTime.div(totalLP));
-
         for (uint256 i = 0; i < usersAddr.length; i++) {
             address user = usersAddr[i];
-            percents[i] = userInfo[user].weight.add(
-                userInfo[user].amountLP.mul(totalWeights.sub(userInfo[user].lastTotalWeight))
-            ).div(dTimeAll);
+            console.log(user);
+            uint256 percent = _getPercentForUser(user);
+            console.log(percent);
+            percents.push(percent);
         }
         emit UpdatePercents(percents);
     }
 
-    function getPercentForUser(address user) external view returns (uint256) {
+    function _getPercentForUser(address user) internal view returns (uint256) {
         uint256 time = block.timestamp;
         uint256 dTimeAll = time - startTime;
         uint256 dTime = time - lastUpdateTime;
