@@ -59,7 +59,7 @@ contract DynamicWeightedLP {
         internal
         returns (bool)
     {
-        UserInfo memory users = userInfo[user]
+        UserInfo memory users = userInfo[user];
         if (!started) {
             startTime = time;
             started = true;
@@ -90,7 +90,7 @@ contract DynamicWeightedLP {
         return true;
     }
 
-    function updatePercents() external view returns (uint256 percent) {
+    function updatePercents() external returns (uint256 percent) {
         uint256 time = block.timestamp;
         uint256 dTimeAll = time - startTime;
         uint256 dTime = time - lastUpdateTime;
