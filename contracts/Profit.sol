@@ -18,12 +18,16 @@ contract DynamicWeightedLP {
 
     address[] public allUsers;
     bool private started;
+
     uint256[] private percents;
     uint256 private startTime;
     uint256 private totalLP;
     uint256 private totalWeight;
     uint256 private totalWeightForAll;
     uint256 private lastUpdateTime;
+
+    event SendTransaction(uint256 typeF, UserInfo userInfo);
+    event UpdatePercents(uint256[] percents);
 
     function sendTransaction(uint256 typeF, uint256 amountLP) public {
         UserInfo storage users = userInfo[msg.sender];
@@ -46,7 +50,7 @@ contract DynamicWeightedLP {
         if (_updateInfo(msg.sender, typeF, curAmountLP, amountLP, time)) {
             //tranfer
             // console.log('Done\n');
-            //emit
+            emit SendTransaction(typeF, userInfo[msg.sender]);
         } else {
             revert("hz tut potom uzhe dumat");
         }
@@ -101,6 +105,7 @@ contract DynamicWeightedLP {
         // for (uint256 a = 0; a < allUsers.length; a++) {
         //     percents[a] = userInfo[allUsers[a]].weight / totalWeightForAll;
         // }
+        emit UpdatePercents(percents);
     }
 
     function getPercents() external view returns (uint256[] memory) {

@@ -148,12 +148,13 @@ const reInvest = () => {
   return true;
 };
 
-sendTransaction('deposit', 1, 10);
-sendTransaction('deposit', 2, 10);
-sleep(1000).then(async () => {
-  sendTransaction('withdraw', 1, 4);
+sendTransaction('deposit', 1, 20);
+sleep(3000).then(async () => {
+  sendTransaction('deposit', 2, 20);
   await sleep(3000);
-  sendTransaction('deposit', 1, 10);
-  await sleep(6000);
+  sendTransaction('withdraw', 1, 8);
+  await sleep(2000);
+  sendTransaction('withdraw', 1, 7);
+  await sleep(1000);
   reInvest();
 });
