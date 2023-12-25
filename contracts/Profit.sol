@@ -40,7 +40,7 @@ contract DynamicWeightedLP {
         }
 
         if (typeF == 1) {
-            if (!allUsers.includes(msg.sender) || curAmountLP <= 0) revert("You dont using this pool");
+            if (curAmountLP <= 0) revert("You dont using this pool");
             if (curAmountLP < amountLP) revert("Insufficient LP amount");
         }
         if (_updateInfo(msg.sender, typeF, curAmountLP, amountLP, time)) {
