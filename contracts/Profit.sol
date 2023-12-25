@@ -17,11 +17,11 @@ contract DynamicWeightedLP {
     }
 
     mapping(address => UserInfo) userInfo;
+    address[] private usersAddr;
 
     bool private started;
 
     uint256[] private percents;
-    uint256 private usersValue;
     uint256 private startTime;
     uint256 private totalLP;
     uint256 private totalWeight;
@@ -38,12 +38,10 @@ contract DynamicWeightedLP {
 
         if (typeF == 0) {
             if (curAmountLP <= 0) {
-                usersInfo.index = usersValue;
                 usersInfo.user = msg.sender;
                 usersInfo.amountLP = amountLP;
                 usersInfo.weight = 0;
                 usersInfo.lastTotalWeight = 0;
-                usersValue++;
             }
         }
 
@@ -94,8 +92,8 @@ contract DynamicWeightedLP {
     }
 
     function updatePercents() public {
-        for (uint256 a = 0; a < usersValue; a++) {
-            percents[a] = _updatePercentForOneUser(userInfo[a].user);
+        for (uint256 i = 0; i < usersAddr.length; i++) {
+            percents[i] = _updatePercentForOneUser(userInfo[usersAddr[i]].user);
         }
         // emit UpdatePercents(percents);
     }
