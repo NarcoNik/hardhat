@@ -15,7 +15,6 @@ contract DynamicWeightedLP {
     }
 
     mapping(address => UserInfo) public userInfo;
-    mapping(address => bool) public isUser;
     address[] public usersAddr;
     bool public started;
 
@@ -39,7 +38,6 @@ contract DynamicWeightedLP {
             if (curAmountLP <= 0) {
                 userInfo[user] = UserInfo(amountLP, 0, 0);
                 usersAddr.push(user);
-                isUser[user] = true; // Add user to the mapping
             }
         }
 
@@ -59,7 +57,6 @@ contract DynamicWeightedLP {
         internal
         returns (bool)
     {
-        UserInfo memory users = userInfo[user];
         if (!started) {
             startTime = time;
             started = true;
@@ -71,49 +68,59 @@ contract DynamicWeightedLP {
             lastUpdateTime = time;
         }
 
-        uint256 weight = users.weight.add(curAmountLP.mul(totalWeight.sub(users.lastTotalWeight)));
+        uint256 weight = userInfo[user].weight.add(curAmountLP.mul(totalWeight.sub(userInfo[user].lastTotalWeight)));
 
         if (typeF == 0) {
-            curAmountLP = curAmountLP.add(amountLP);
-            totalLP = totalLP.add(amountLP);
+            curAmountLP += amountLP;
+            totalLP += amountLP;
         }
 
         if (typeF == 1) {
-            curAmountLP = curAmountLP.sub(amountLP);
-            totalLP = totalLP.sub(amountLP);
+            curAmountLP -= amountLP;
+            totalLP -= amountLP;
         }
 
-        users.amountLP = curAmountLP;
-        users.weight = weight;
-        users.lastTotalWeight = totalWeight;
+        userInfo[user] = UserInfo(curAmountLP, weight, totalWeight);
 
         return true;
     }
 
-    function updatePercents() external returns (uint256 percent) {
+    function updatePercents() external {
+        for (uint256 i = 0; i < usersAddr.length; i++) {
+            address user = usersAddr[i];
+            uint256 percent = _getPercentForUser(user);
+            percents[i] = percent;
+        }
+        emit UpdatePercents(percents);
+    }
+
+    function _getPercentForUser(address user) internal view returns (uint256) {
         uint256 time = block.timestamp;
         uint256 dTimeAll = time - startTime;
         uint256 dTime = time - lastUpdateTime;
         uint256 totalWeights = totalWeight.add(dTime.div(totalLP));
 
-        for (uint256 i = 0; i < usersAddr.length; i++) {
-            address user = usersAddr[i];
-            if (isUser[user]) {
-                // Check if user exists in the mapping
-                percents[i] = userInfo[user].weight.add(
-                    userInfo[user].amountLP.mul(totalWeights.sub(userInfo[user].lastTotalWeight))
-                ).div(dTimeAll);
-            }
-        }
+        uint256 percent = userInfo[user].weight.add(
+            userInfo[user].amountLP.mul(totalWeights.sub(userInfo[user].lastTotalWeight))
+        ).div(dTimeAll);
+
+        return percent;
+    }
+
+    function getPercentForUser(address user) external view returns (uint256) {
+        uint256 time = block.timestamp;
+        uint256 dTimeAll = time - startTime;
+        uint256 dTime = time - lastUpdateTime;
+        uint256 totalWeights = totalWeight.add(dTime.div(totalLP));
+
+        uint256 percent = userInfo[user].weight.add(
+            userInfo[user].amountLP.mul(totalWeights.sub(userInfo[user].lastTotalWeight))
+        ).div(dTimeAll);
 
         return percent;
     }
 
     function getPercents() external view returns (uint256[] memory) {
         return percents;
-    }
-
-    function getUserInfo(address user) external view returns (UserInfo memory) {
-        return userInfo[user];
     }
 }
