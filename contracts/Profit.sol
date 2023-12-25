@@ -9,51 +9,46 @@ contract DynamicWeightedLP {
     using SafeMathUint for uint256;
 
     struct UserInfo {
-        uint256 index;
-        address user;
         uint256 amountLP;
         uint256 weight;
         uint256 lastTotalWeight;
     }
 
-    mapping(address => UserInfo) userInfo;
-    address[] private usersAddr;
+    mapping(address => UserInfo) public userInfo;
+    mapping(address => bool) public isUser;
+    address[] public usersAddr;
+    bool public started;
 
-    bool private started;
-
-    uint256[] private percents;
-    uint256 private startTime;
-    uint256 private totalLP;
-    uint256 private totalWeight;
-    uint256 private lastUpdateTime;
+    uint256[] public percents;
+    uint256 public startTime;
+    uint256 public totalLP;
+    uint256 public totalWeight;
+    uint256 public lastUpdateTime;
 
     event SendTransaction(uint256 typeF, UserInfo userInfo);
     event UpdatePercents(uint256[] percents);
 
     function sendTransaction(uint256 typeF, uint256 amountLP) public {
-        UserInfo storage usersInfo = userInfo[msg.sender];
+        address user = msg.sender;
 
         uint256 time = block.timestamp;
-        uint256 curAmountLP = usersInfo.amountLP;
+        uint256 curAmountLP = userInfo[user].amountLP;
 
         if (typeF == 0) {
             if (curAmountLP <= 0) {
-                usersInfo.user = msg.sender;
-                usersInfo.amountLP = amountLP;
-                usersInfo.weight = 0;
-                usersInfo.lastTotalWeight = 0;
-                usersAddr.push(msg.sender);
+                userInfo[user] = UserInfo(amountLP, 0, 0);
+                usersAddr.push(user);
+                isUser[user] = true; // Add user to the mapping
             }
         }
 
         if (typeF == 1) {
-            if (curAmountLP <= 0) revert("You dont using this pool");
-            if (curAmountLP < amountLP) revert("Insufficient LP amount");
+            require(curAmountLP > 0, "You dont using this pool");
+            require(curAmountLP >= amountLP, "Insufficient LP amount");
         }
-        if (_updateInfo(msg.sender, typeF, curAmountLP, amountLP, time)) {
-            //tranfer
-            // console.log('Done\n');
-            emit SendTransaction(typeF, usersInfo);
+
+        if (_updateInfo(user, typeF, curAmountLP, amountLP, time)) {
+            emit SendTransaction(typeF, userInfo[user]);
         } else {
             revert("hz tut potom uzhe dumat");
         }
@@ -63,52 +58,53 @@ contract DynamicWeightedLP {
         internal
         returns (bool)
     {
-        // typeF 0-deposit, 1-withdraw, 2-reinvest
-        UserInfo storage usersInfo = userInfo[user];
         if (!started) {
             startTime = time;
             started = true;
         }
-        uint256 dTime = time - lastUpdateTime;
-        if (dTime != 0 && totalLP != 0) totalWeight += dTime / totalLP;
 
-        uint256 weight = usersInfo.weight + curAmountLP * (totalWeight - usersInfo.lastTotalWeight);
+        uint256 dTime = time - lastUpdateTime;
+        if (dTime != 0 && totalLP != 0) {
+            totalWeight += dTime.div(totalLP);
+            lastUpdateTime = time;
+        }
+
+        uint256 weight = userInfo[user].weight.add(curAmountLP.mul(totalWeight.sub(userInfo[user].lastTotalWeight)));
 
         if (typeF == 0) {
-            curAmountLP += amountLP;
-            totalLP += amountLP;
+            curAmountLP = curAmountLP.add(amountLP);
+            totalLP = totalLP.add(amountLP);
         }
+
         if (typeF == 1) {
-            curAmountLP -= amountLP;
-            totalLP -= amountLP;
+            curAmountLP = curAmountLP.sub(amountLP);
+            totalLP = totalLP.sub(amountLP);
         }
 
-        usersInfo.amountLP = curAmountLP;
-        usersInfo.weight = weight;
-        usersInfo.lastTotalWeight = totalWeight;
-
-        lastUpdateTime = time;
+        userInfo[user].amountLP = curAmountLP;
+        userInfo[user].weight = weight;
+        userInfo[user].lastTotalWeight = totalWeight;
 
         return true;
     }
 
-    function updatePercents() public {
-        for (uint256 i = 0; i < usersAddr.length; i++) {
-            percents[i] = _updatePercentForOneUser(userInfo[usersAddr[i]].user);
-        }
-        // emit UpdatePercents(percents);
-    }
-
-    function _updatePercentForOneUser(address user) internal returns (uint256 percent) {
-        UserInfo memory usersInfo = userInfo[user];
+    function updatePercents() internal view returns (uint256 percent) {
         uint256 time = block.timestamp;
         uint256 dTimeAll = time - startTime;
         uint256 dTime = time - lastUpdateTime;
-        if (dTime != 0 && totalLP != 0) totalWeight += dTime / totalLP;
+        uint256 totalWeights = totalWeight.add(dTime.div(totalLP));
 
-        percent = (usersInfo.weight + usersInfo.amountLP * (totalWeight - usersInfo.lastTotalWeight)) / dTimeAll;
+        for (uint256 i = 0; i < usersAddr.length; i++) {
+            address user = usersAddr[i];
+            if (isUser[user]) {
+                // Check if user exists in the mapping
+                percents[i] = userInfo[user].weight.add(
+                    userInfo[user].amountLP.mul(totalWeights.sub(userInfo[user].lastTotalWeight))
+                ).div(dTimeAll);
+            }
+        }
+
         return percent;
-        // emit UpdatePercents(percents);
     }
 
     function getPercents() external view returns (uint256[] memory) {
