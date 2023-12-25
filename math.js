@@ -155,6 +155,8 @@ sendTransaction('deposit', 1, 10);
 sendTransaction('deposit', 2, 10);
 sleep(1000).then(async () => {
   sendTransaction('withdraw', 1, 4);
-  await sleep(9000);
+  await sleep(3000);
+  sendTransaction('deposit', 1, 10);
+  await sleep(6000);
   reInvest();
 });
