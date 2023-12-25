@@ -9,18 +9,14 @@ contract DynamicWeightedLP {
     using SafeMathUint for uint256;
 
     struct UserInfo {
+        uint256 index;
         address user;
         uint256 amountLP;
         uint256 weight;
         uint256 lastTotalWeight;
     }
 
-    struct User {
-        uint256 index;
-        mapping(uint256 => UserInfo) userInfo;
-    }
-
-    mapping(address => User) user;
+    mapping(address => UserInfo) userInfo;
 
     bool private started;
 
@@ -35,20 +31,19 @@ contract DynamicWeightedLP {
     event UpdatePercents(uint256[] percents);
 
     function sendTransaction(uint256 typeF, uint256 amountLP) public {
-        User storage users = user[msg.sender];
-        users.index = usersValue;
-        UserInfo storage usersInfo = users.userInfo[users.index];
-        usersValue++;
+        UserInfo storage usersInfo = userInfo[msg.sender];
 
         uint256 time = block.timestamp;
         uint256 curAmountLP = usersInfo.amountLP;
 
         if (typeF == 0) {
             if (curAmountLP <= 0) {
+                usersInfo.index = usersValue;
                 usersInfo.user = msg.sender;
                 usersInfo.amountLP = amountLP;
                 usersInfo.weight = 0;
                 usersInfo.lastTotalWeight = 0;
+                usersValue++;
             }
         }
 
@@ -65,14 +60,12 @@ contract DynamicWeightedLP {
         }
     }
 
-    function _updateInfo(address userAddr, uint256 typeF, uint256 curAmountLP, uint256 amountLP, uint256 time)
+    function _updateInfo(address user, uint256 typeF, uint256 curAmountLP, uint256 amountLP, uint256 time)
         internal
         returns (bool)
     {
         // typeF 0-deposit, 1-withdraw, 2-reinvest
-        User storage users = user[userAddr];
-        UserInfo storage usersInfo = users.userInfo[users.index];
-
+        UserInfo storage usersInfo = userInfo[user];
         if (!started) {
             startTime = time;
             started = true;
@@ -101,15 +94,14 @@ contract DynamicWeightedLP {
     }
 
     function updatePercents() public {
-        for (uint256 i = 0; i < usersValue; i++) {
-            percents[i] = _updatePercentForOneUser(UserInfo[i].user);
+        for (uint256 a = 0; a < usersValue; a++) {
+            percents[a] = _updatePercentForOneUser(userInfo[a].user);
         }
-        emit UpdatePercents(percents);
+        // emit UpdatePercents(percents);
     }
 
-    function _updatePercentForOneUser(address userAddr) internal returns (uint256 percent) {
-        User storage users = user[userAddr];
-        UserInfo storage usersInfo = users.userInfo[users.index];
+    function _updatePercentForOneUser(address user) internal returns (uint256 percent) {
+        UserInfo memory usersInfo = userInfo[user];
         uint256 time = block.timestamp;
         uint256 dTimeAll = time - startTime;
         uint256 dTime = time - lastUpdateTime;
@@ -117,14 +109,14 @@ contract DynamicWeightedLP {
 
         percent = (usersInfo.weight + usersInfo.amountLP * (totalWeight - usersInfo.lastTotalWeight)) / dTimeAll;
         return percent;
+        // emit UpdatePercents(percents);
     }
 
     function getPercents() external view returns (uint256[] memory) {
         return percents;
     }
 
-    function getUserInfo(address userAddr) external view returns (UserInfo memory) {
-        User storage users = user[userAddr];
-        return users.userInfo[users.index];
+    function getUserInfo(address user) external view returns (UserInfo memory) {
+        return userInfo[user];
     }
 }
