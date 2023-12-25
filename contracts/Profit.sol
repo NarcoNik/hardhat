@@ -29,6 +29,7 @@ contract DynamicWeightedLP {
     event UpdatePercents(uint256[] percents);
 
     function sendTransaction(uint256 typeF, uint256 amountLP) public {
+        // typeF 0-deposit, 1-withdraw, 2-reinvest
         address user = msg.sender;
 
         uint256 time = block.timestamp;
@@ -58,6 +59,7 @@ contract DynamicWeightedLP {
         internal
         returns (bool)
     {
+        UserInfo memory users = userInfo[user]
         if (!started) {
             startTime = time;
             started = true;
@@ -69,7 +71,7 @@ contract DynamicWeightedLP {
             lastUpdateTime = time;
         }
 
-        uint256 weight = userInfo[user].weight.add(curAmountLP.mul(totalWeight.sub(userInfo[user].lastTotalWeight)));
+        uint256 weight = users.weight.add(curAmountLP.mul(totalWeight.sub(users.lastTotalWeight)));
 
         if (typeF == 0) {
             curAmountLP = curAmountLP.add(amountLP);
@@ -81,14 +83,14 @@ contract DynamicWeightedLP {
             totalLP = totalLP.sub(amountLP);
         }
 
-        userInfo[user].amountLP = curAmountLP;
-        userInfo[user].weight = weight;
-        userInfo[user].lastTotalWeight = totalWeight;
+        users.amountLP = curAmountLP;
+        users.weight = weight;
+        users.lastTotalWeight = totalWeight;
 
         return true;
     }
 
-    function updatePercents() internal view returns (uint256 percent) {
+    function updatePercents() external view returns (uint256 percent) {
         uint256 time = block.timestamp;
         uint256 dTimeAll = time - startTime;
         uint256 dTime = time - lastUpdateTime;
