@@ -124,8 +124,6 @@ const getPercents = () => {
     sumWeight += UserInfo[u].weight;
   }
   for (let a = 0; a < UserInfo.length; a++) {
-    // const midWeight = getMidWeight(UserInfo[a].percents);
-    // percents[a] = midWeight;
     percents[a] = UserInfo[a].weight / sumWeight;
   }
   console.log('getPercents:\n', percents);
