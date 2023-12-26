@@ -27,8 +27,7 @@ contract DynamicWeightedLP {
     uint256 public totalWeight;
     uint256 public lastUpdateTime;
     uint256 public totalFarmed;
-    uint256 public currentFarmed;
-    uint256 public reinvestedTime;
+    uint256 public reinvestTime;
 
     event SendTransaction(uint256 typeF, UserInfo userInfo);
 
@@ -116,21 +115,20 @@ contract DynamicWeightedLP {
         return percent;
     }
 
-    function _getCurrentFarmed() internal returns (uint256) {
+    function _getCurrentFarmed() internal view returns (uint256) {
         uint256 time = block.timestamp;
         uint256 dTime;
-        if (reinvestedTime != 0) dTime = time - reinvestedTime;
+        if (reinvestTime != 0) dTime = time - reinvestTime;
         else dTime = time - startTime;
-        currentFarmed = 100 * dTime;
-        console.log("_getCurrentFarmed:\n", currentFarmed);
-        return currentFarmed;
+        return 100 * dTime;
     }
 
     function reinvest() external onlyOwner returns (bool) {
+        (uint256 currentFarmed) = _getCurrentFarmed();
         totalLP += currentFarmed;
         totalFarmed += currentFarmed;
         currentFarmed = 0;
-        reinvestedTime = block.timestamp;
+        reinvestTime = block.timestamp;
         return true;
     }
 }
