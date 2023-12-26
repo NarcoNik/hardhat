@@ -8,43 +8,36 @@ let lastUpdateTime = 0;
 let started = false;
 let UserInfo = [
   {
-    user: 0,
     amountLP: 0,
     weight: 0,
     lastTotalWeight: 0
   },
   {
-    user: 0,
     amountLP: 0,
     weight: 0,
     lastTotalWeight: 0
   },
   {
-    user: 0,
     amountLP: 0,
     weight: 0,
     lastTotalWeight: 0
   },
   {
-    user: 0,
     amountLP: 0,
     weight: 0,
     lastTotalWeight: 0
   },
   {
-    user: 0,
     amountLP: 0,
     weight: 0,
     lastTotalWeight: 0
   },
   {
-    user: 0,
     amountLP: 0,
     weight: 0,
     lastTotalWeight: 0
   },
   {
-    user: 0,
     amountLP: 0,
     weight: 0,
     lastTotalWeight: 0
@@ -110,7 +103,6 @@ const sendTransaction = (type, id, amountLP) => {
     //emit
   } else return console.error('hz tut potom uzhe dumat');
 };
-
 const getPercents = () => {
   const time = Number((new Date().getTime() / 1000).toFixed());
   const dTimeAll = time - startTime;

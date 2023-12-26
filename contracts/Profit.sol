@@ -16,17 +16,14 @@ contract DynamicWeightedLP {
     }
 
     mapping(address => UserInfo) public userInfo;
-    address[] public usersAddr;
     bool public started;
 
-    uint256[] public percents;
     uint256 public startTime;
     uint256 public totalLP;
     uint256 public totalWeight;
     uint256 public lastUpdateTime;
 
     event SendTransaction(uint256 typeF, UserInfo userInfo);
-    event UpdatePercents(uint256[] percents);
 
     function sendTransaction(uint256 typeF, uint256 amountLP) public {
         // typeF 0-deposit, 1-withdraw, 2-reinvest
@@ -38,7 +35,6 @@ contract DynamicWeightedLP {
         if (typeF == 0) {
             if (curAmountLP <= 0) {
                 userInfo[user] = UserInfo(amountLP, 0, 0);
-                usersAddr.push(user);
             }
         }
 
@@ -86,18 +82,7 @@ contract DynamicWeightedLP {
         return true;
     }
 
-    function updatePercents() external {
-        for (uint256 i = 0; i < usersAddr.length; i++) {
-            address user = usersAddr[i];
-            console.log(user);
-            uint256 percent = _getPercentForUser(user);
-            console.log(percent);
-            percents.push(percent);
-        }
-        emit UpdatePercents(percents);
-    }
-
-    function _getPercentForUser(address user) internal view returns (uint256) {
+    function getPercentForUser(address user) external view returns (uint256) {
         uint256 time = block.timestamp;
         uint256 dTimeAll = time - startTime;
         uint256 dTime = time - lastUpdateTime;
@@ -108,9 +93,5 @@ contract DynamicWeightedLP {
         ).div(dTimeAll);
 
         return percent;
-    }
-
-    function getPercents() external view returns (uint256[] memory) {
-        return percents;
     }
 }
