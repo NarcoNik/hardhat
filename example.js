@@ -1,184 +1,115 @@
-let totalAmountLP = 0;
-let totalAmountWeight = 0;
-let percents = [];
-let farmedByDay = 100;
-let totalFarmed = 0;
-let startTime = 0;
-let reinvestTime = 0;
-let started = false;
-let UserInfo = [
-  {
-    user: 0,
-    amountLP: 0,
-    lastUpdateTime: 0,
-    weight: 0,
-    percentsUser: [0]
-  },
-  {
-    user: 0,
-    amountLP: 0,
-    lastUpdateTime: 0,
-    weight: 0,
-    percentsUser: [0]
-  },
-  {
-    user: 0,
-    amountLP: 0,
-    lastUpdateTime: 0,
-    weight: 0,
-    percentsUser: [0]
-  },
-  {
-    user: 0,
-    amountLP: 0,
-    lastUpdateTime: 0,
-    weight: 0,
-    percentsUser: [0]
-  },
-  {
-    user: 0,
-    amountLP: 0,
-    lastUpdateTime: 0,
-    weight: 0,
-    percentsUser: [0]
-  },
-  {
-    user: 0,
-    amountLP: 0,
-    lastUpdateTime: 0,
-    weight: 0,
-    percentsUser: [0]
-  },
-  {
-    user: 0,
-    amountLP: 0,
-    lastUpdateTime: 0,
-    weight: 0,
-    percentsUser: [0]
-  }
-];
-
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-const updateInfo = (type, id, curAmountLP, amountLP) => {
-  const time = Number((new Date().getTime() / 1000).toFixed());
-
-  if (!started) {
-    startTime = time;
-    started = true;
+class User {
+  constructor(id) {
+    this.id = id;
+    this.investedCoins = 0;
+    this.withdrawnCoins = 0;
+    this.investmentStartDate = null;
+    this.rewards = [];
   }
 
-  const dTime = time - UserInfo[id].lastUpdateTime;
-
-  const lastWeight = UserInfo[id].weight;
-  const curWeight = curAmountLP * dTime;
-  const weight = lastWeight + curWeight;
-
-  if (type == 'deposit') {
-    curAmountLP += amountLP;
-    totalAmountLP += amountLP;
-  }
-  if (type == 'withdraw') {
-    curAmountLP -= amountLP;
-    totalAmountLP -= amountLP;
+  invest(coins, currentDate) {
+    if (this.investmentStartDate) {
+      this.calculateAndAddRewards(currentDate);
+    }
+    this.investedCoins += coins;
+    this.investmentStartDate = currentDate;
   }
 
-  UserInfo[id].user = id;
-  UserInfo[id].amountLP = curAmountLP;
-  UserInfo[id].lastUpdateTime = time;
-  UserInfo[id].weight = weight;
-  UserInfo[id].percentsUser.push(isNaN(weight) ? 0 : weight);
-
-  totalAmountWeight = UserInfo.reduce((acc, user) => acc + user.weight, 0);
-
-  console.log(type + ' ~ after:', UserInfo[id]);
-  console.log(type + ' ~ global:', { totalAmountLP, totalAmountWeight });
-  return true;
-};
-
-const sendTransaction = (type, id, amountLP) => {
-  console.log('user:', id);
-  console.log(type + ' ~ before:', UserInfo[id]);
-  let curAmountLP = UserInfo[id].amountLP;
-
-  if (type == 'deposit') {
-    if (curAmountLP <= 0) {
-      UserInfo[id] = {
-        user: id,
-        amountLP,
-        lastUpdateTime: Number((new Date().getTime() / 1000).toFixed()),
-        weight: 0,
-        percentsUser: []
-      };
+  withdraw(coins, currentDate) {
+    this.calculateAndAddRewards(currentDate);
+    if (this.investedCoins >= coins) {
+      this.withdrawnCoins += coins;
+      this.investedCoins -= coins;
+    } else {
+      console.error('Not enough invested coins to withdraw.');
     }
   }
 
-  if (type == 'withdraw') {
-    if (!UserInfo[id] || curAmountLP <= 0) return console.error('You dont using this pool');
-    if (curAmountLP < amountLP) return console.error('Insufficient LP amount');
-  }
-  if (updateInfo(type, id, curAmountLP, amountLP)) {
-    //tranfer
-    console.log('Done\n');
-    //emit
-  } else return console.error('hz tut potom uzhe dumat');
-};
-
-const getMidWeight = num => {
-  console.log(num);
-  num = num.filter(elem => elem != 0);
-  let sum;
-  if (num.length != 0) {
-    sum = num.reduce((a, b) => a + b, 0);
-  } else sum = 0;
-  const midWeight = sum;
-
-  console.log({ sum, midWeight, totalAmountWeight });
-  return { midWeight };
-};
-
-const getPercents = () => {
-  for (let i = 0; i < UserInfo.length; i++) {
-    if (UserInfo[i].amountLP > 0) {
-      sendTransaction('reinvest', i, 0);
+  calculateAndAddRewards(currentDate) {
+    if (this.investmentStartDate) {
+      const daysInvested = Math.ceil(
+        (currentDate - this.investmentStartDate) / (1000 * 60 * 60 * 24)
+      );
+      const userWeight = this.investedCoins * daysInvested;
+      const totalWeight = this.investedCoins + this.withdrawnCoins;
+      const percentage = userWeight / totalWeight;
+      const rewards = percentage * 100; // В день приходит 100 ревардов
+      this.rewards.push(rewards);
     }
   }
-  for (let a = 0; a < UserInfo.length; a++) {
-    const { midWeight } = getMidWeight(UserInfo[a].percentsUser);
-    percents[a] = midWeight / totalAmountWeight;
-  }
-  console.log(percents);
-};
 
-const _getTotalFarmed = () => {
-  const time = Number((new Date().getTime() / 1000).toFixed());
-  const dTime = time - startTime;
-  totalFarmed = farmedByDay * dTime;
-  console.log(totalFarmed);
-  return totalFarmed;
-};
-
-const reInvest = () => {
-  reinvestTime = Number((new Date().getTime() / 1000).toFixed());
-  getPercents();
-  const totalFarmed = _getTotalFarmed();
-
-  const availibleLP = [];
-  for (let i = 0; i < UserInfo.length; i++) {
-    const amtLP = percents[i] * totalFarmed;
-    availibleLP[i] = amtLP;
+  calculateTotalRewards() {
+    return this.rewards.reduce((total, dailyReward) => total + dailyReward, 0);
   }
 
-  console.log(availibleLP);
+  calculateWeight(currentDate) {
+    if (!this.investmentStartDate) {
+      return 0;
+    }
 
-  return true;
-};
+    const daysInvested = Math.ceil(
+      (currentDate - this.investmentStartDate) / (1000 * 60 * 60 * 24)
+    );
+    return this.investedCoins * daysInvested;
+  }
+}
 
-sendTransaction('deposit', 1, 10);
-sendTransaction('deposit', 2, 10);
-sleep(1000).then(async () => {
-  sendTransaction('withdraw', 1, 4);
-  return sleep(3000).then(() => {
-    reInvest();
-  });
-});
+class InvestmentSystem {
+  constructor() {
+    this.users = [];
+  }
+
+  addUser(user) {
+    this.users.push(user);
+  }
+
+  distributeRewards(currentDate) {
+    for (const user of this.users) {
+      user.calculateAndAddRewards(currentDate);
+    }
+  }
+
+  getTotalRewards() {
+    let totalRewards = 0;
+    for (const user of this.users) {
+      totalRewards += user.calculateTotalRewards();
+    }
+    return totalRewards;
+  }
+
+  calculateUserPercentage(userId) {
+    const user = this.users.find(user => user.id === userId);
+    if (user) {
+      const totalRewards = this.getTotalRewards();
+      return Math.min((user.calculateTotalRewards() / totalRewards) * 100, 100);
+    }
+    return 0;
+  }
+}
+
+// Пример использования
+const system = new InvestmentSystem();
+
+const user1 = new User(1);
+const user2 = new User(2);
+
+user1.invest(10, new Date(2023, 0, 1)); // Первый пользователь вложил 10 монет в первый день
+user2.invest(10, new Date(2023, 0, 1)); // Второй пользователь вложил 10 монет в первый день
+
+user1.withdraw(4, new Date(2023, 0, 2)); // Первый пользователь вывел 4 монеты во второй день
+
+system.addUser(user1);
+system.addUser(user2);
+
+// Через 4 дня (включая первый день)
+for (let i = 0; i < 4; i++) {
+  const currentDate = new Date(2023, 0, i + 1);
+  system.distributeRewards(currentDate);
+}
+
+console.log('Total Rewards:', system.getTotalRewards());
+
+for (const user of system.users) {
+  const userPercentage = system.calculateUserPercentage(user.id);
+  console.log(`User ${user.id} is entitled to ${userPercentage}% of the total rewards.`);
+}
