@@ -77,6 +77,7 @@ const sendTransaction = (type, id, amountLP) => {
     //emit
   } else return console.error('hz tut potom uzhe dumat');
 };
+
 const getPercentForOneUser = id => {
   const users = UserInfo[id];
   const time = Number((new Date().getTime() / 1000).toFixed());
@@ -104,7 +105,7 @@ const getPercents = () => {
   console.log('getPercents:\n', percents);
 };
 
-const _getCeurrentFarmed = () => {
+const _getCurrentFarmed = () => {
   const time = Number((new Date().getTime() / 1000).toFixed());
   let dTime;
   if (reinvestedTime != 0) dTime = time - reinvestedTime;
@@ -116,7 +117,7 @@ const _getCeurrentFarmed = () => {
 
 const reInvest = () => {
   getPercents();
-  _getCeurrentFarmed();
+  _getCurrentFarmed();
 
   const availibleLP = [];
   for (let i = 0; i < UserInfo.length; i++) {

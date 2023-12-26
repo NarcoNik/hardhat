@@ -13,17 +13,33 @@ contract DynamicWeightedLP {
         uint256 amountLP;
         uint256 weight;
         uint256 lastTotalWeight;
+        uint256 availibleToClaim;
+        uint256 lastTotalFarmed;
     }
 
     mapping(address => UserInfo) public userInfo;
     bool public started;
 
+    address owner;
+
     uint256 public startTime;
     uint256 public totalLP;
     uint256 public totalWeight;
     uint256 public lastUpdateTime;
+    uint256 public totalFarmed;
+    uint256 public currentFarmed;
+    uint256 public reinvestedTime;
 
     event SendTransaction(uint256 typeF, UserInfo userInfo);
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Caller not owner");
+        _;
+    }
 
     function sendTransaction(uint256 typeF, uint256 amountLP) public {
         // typeF 0-deposit, 1-withdraw, 2-reinvest
@@ -34,7 +50,7 @@ contract DynamicWeightedLP {
 
         if (typeF == 0) {
             if (curAmountLP <= 0) {
-                userInfo[user] = UserInfo(amountLP, 0, 0);
+                userInfo[user] = UserInfo(0, 0, 0, 0, 0);
             }
         }
 
@@ -77,21 +93,44 @@ contract DynamicWeightedLP {
             totalLP -= amountLP;
         }
 
-        userInfo[user] = UserInfo(curAmountLP, weight, totalWeight);
+        if (totalFarmed != 0 && userInfo[user].lastTotalFarmed != totalFarmed) {
+            uint256 dTimeAll = time - startTime;
+            uint256 percent = weight / dTimeAll;
+            userInfo[user] = UserInfo(curAmountLP, weight, totalWeight, percent * totalFarmed, totalFarmed);
+        } else {
+            userInfo[user] = UserInfo(curAmountLP, weight, totalWeight, 0, 0);
+        }
 
         return true;
     }
 
-    function getPercentForUser(address user) external view returns (uint256) {
+    function getPercentForUser(address userAddr) external view returns (uint256) {
+        UserInfo memory user = userInfo[userAddr];
         uint256 time = block.timestamp;
         uint256 dTimeAll = time - startTime;
         uint256 dTime = time - lastUpdateTime;
         uint256 totalWeights = totalWeight.add(dTime.div(totalLP));
 
-        uint256 percent = userInfo[user].weight.add(
-            userInfo[user].amountLP.mul(totalWeights.sub(userInfo[user].lastTotalWeight))
-        ).div(dTimeAll);
+        uint256 percent = user.weight.add(user.amountLP.mul(totalWeights.sub(user.lastTotalWeight))).div(dTimeAll);
 
         return percent;
+    }
+
+    function _getCurrentFarmed() internal returns (uint256) {
+        uint256 time = block.timestamp;
+        uint256 dTime;
+        if (reinvestedTime != 0) dTime = time - reinvestedTime;
+        else dTime = time - startTime;
+        currentFarmed = 100 * dTime;
+        console.log("_getCurrentFarmed:\n", currentFarmed);
+        return currentFarmed;
+    }
+
+    function reinvest() external onlyOwner returns (bool) {
+        totalLP += currentFarmed;
+        totalFarmed += currentFarmed;
+        currentFarmed = 0;
+        reinvestedTime = block.timestamp;
+        return true;
     }
 }
