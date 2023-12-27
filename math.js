@@ -4,23 +4,33 @@ let percents = [];
 let farmedByDay = 100;
 let currentFarmed = 0;
 let totalFarmed = 0;
-let startTime = 0;
 let lastUpdateTime = 0;
 let reinvestedTime = 0;
+let season = 0;
 let started = false;
 let UserInfo = [];
-
+let ReinvestInfo = [
+  {
+    season: 0,
+    startTime: 0,
+    reinvestedTime: 0,
+    startTotalWeight: 0,
+    endTotalWeight: 0,
+    totalFarmed: 0
+  }
+];
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 const updateInfo = (type, id, curAmountLP, amountLP, time) => {
+  const user = UserInfo[id];
   if (!started) {
-    startTime = time;
+    ReinvestInfo[season].startTime = time;
     started = true;
   }
   const dTime = time - lastUpdateTime;
   if (dTime != 0 && totalLP != 0) totalWeight += dTime / totalLP;
 
-  const weight = UserInfo[id].weight + curAmountLP * (totalWeight - UserInfo[id].lastTotalWeight);
+  const weight = user.weight + curAmountLP * (totalWeight - user.lastTotalWeight);
 
   if (type == 'deposit') {
     curAmountLP += amountLP;
@@ -30,16 +40,43 @@ const updateInfo = (type, id, curAmountLP, amountLP, time) => {
     curAmountLP -= amountLP;
     totalLP -= amountLP;
   }
-  if (totalFarmed != 0 && UserInfo[id].lastTotalFarmed != totalFarmed) {
-    const dTimeAll = time - startTime;
-    const percent = weight / dTimeAll;
-    UserInfo[id].availibleToClaim = percent * totalFarmed;
-    UserInfo[id].lastTotalFarmed = totalFarmed;
-  }
+  if (user.season != season) {
+    for (let i = 0; i < ReinvestInfo.length; i++) {
+      if (i <= user.season && user.season < ReinvestInfo.length && i != season) {
+        const poolInfo = ReinvestInfo[i];
+        const weightSeason =
+          user.weight + user.amountLP * (poolInfo.endTotalWeight - user.lastTotalWeight);
 
-  UserInfo[id].amountLP = curAmountLP;
-  UserInfo[id].weight = weight;
-  UserInfo[id].lastTotalWeight = totalWeight;
+        const dTimeSeason = poolInfo.reinvestedTime - poolInfo.startTime;
+        const percent = weightSeason / dTimeSeason;
+
+        const availibleToClaim = percent * poolInfo.totalFarmed;
+
+        UserInfo[id] = {
+          amountLP: user.amountLP + availibleToClaim,
+          weight: weightSeason,
+          lastTotalWeight: poolInfo.endTotalWeight,
+          season
+        };
+      } else {
+        if (type == 'deposit') {
+          curAmountLP += amountLP;
+          totalLP += amountLP;
+        }
+        if (type == 'withdraw') {
+          curAmountLP -= amountLP;
+          totalLP -= amountLP;
+        }
+      }
+    }
+  } else {
+    UserInfo[id] = {
+      curAmountLP,
+      weight,
+      lastTotalWeight: totalWeight,
+      season
+    };
+  }
 
   lastUpdateTime = time;
   console.log('after:', UserInfo[id]);
@@ -57,8 +94,7 @@ const sendTransaction = (type, id, amountLP) => {
         amountLP: 0,
         weight: 0,
         lastTotalWeight: 0,
-        availibleToClaim: 0,
-        lastTotalFarmed: 0
+        season: season
       };
     }
   }
@@ -81,7 +117,7 @@ const sendTransaction = (type, id, amountLP) => {
 const getPercentForOneUser = id => {
   const users = UserInfo[id];
   const time = Number((new Date().getTime() / 1000).toFixed());
-  const dTimeAll = time - startTime;
+  const dTimeAll = time - ReinvestInfo[season].startTime;
   const dTime = time - lastUpdateTime;
   const totalWeights = totalWeight + dTime / totalLP;
   const percent =
@@ -109,7 +145,7 @@ const _getCurrentFarmed = () => {
   const time = Number((new Date().getTime() / 1000).toFixed());
   let dTime;
   if (reinvestedTime != 0) dTime = time - reinvestedTime;
-  else dTime = time - startTime;
+  else dTime = time - ReinvestInfo[season].startTime;
   currentFarmed = farmedByDay * dTime;
   console.log('_getCurrentFarmed:\n', currentFarmed);
   return currentFarmed;
@@ -128,6 +164,7 @@ const reInvest = () => {
   totalFarmed += currentFarmed;
   currentFarmed = 0;
   reinvestedTime = Number((new Date().getTime() / 1000).toFixed());
+  season++;
   console.log('reinvest:\n', availibleLP);
   return true;
 };
